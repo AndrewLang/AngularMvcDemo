@@ -1,17 +1,16 @@
-﻿/// <reference path="../models/person.ts" />
+﻿
+import {Person} from '../models/Person.ts';
 
 
- module Services {
-    export class FriendService {
-        Persons: Array<Models.Person>;
+export class FriendService {
+    Persons: Array<Person>;
 
-        constructor() {
-            this.Persons = [
-                new Models.Person("Arav"),
-                new Models.Person("Martin"),
-                new Models.Person("Kai"),
-                new Models.Person("Andrew")
-            ];
-        }
+    constructor() {
+        this.Persons = [
+            new Person("Arav"),
+            new Person("Martin"),
+            new Person("Kai"),
+            new Person("Andrew")
+        ];
     }
 }

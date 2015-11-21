@@ -1,42 +1,41 @@
 ﻿
-//import * as angular from 'angular2/angular2';
-import {bootstrap, Component, View, Directive, ElementRef, Attribute, CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/angular2';
-import {Injectable} from 'angular2/angular2';
+/*
+ * Angular 2 decorators and services
+ */
+import {bootstrap, FORM_PROVIDERS, ELEMENT_PROBE_PROVIDERS, Directive, Attribute,Component, View, ElementRef} from 'angular2/angular2';
+import {RouteConfig, Router} from 'angular2/router';
+import {ROUTER_PROVIDERS} from 'angular2/router';
+/*
+ * Angular Directives
+ */
+import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/angular2';
+import {ROUTER_DIRECTIVES} from 'angular2/router';
 
-export class Person {
-    Name: string;
-    constructor(name: string) {
-        this.Name = name;
-    }
-}
-export class FriendService {
-    Persons: Array<Person>;
+import {Person} from './models/Person.ts';
+import {FriendService} from './services/FriendService.ts';
 
-    constructor() {
-        this.Persons = [
-            new Person("Arav"),
-            new Person("Martin"),
-            new Person("Kai"),
-            new Person("Andrew")
-        ];
-    }
-}
+
+
 
 @Directive({
-    selector:'[x-large]'
+    // using [ ] means selecting an attribute
+    selector: '[set-font]'
 })
-class XLarge {
-    constructor(element: ElementRef) {
-        element.nativeElement.style.fontSize = 'x-large';
+class SetFont {
+    constructor(element: ElementRef, @Attribute('set-font') color: string) {
+        console.log("ente directive");
+        element.nativeElement.style.color = color;
     }
 }
+
+
 
 @Component({
     selector: 'my-app'
 })
 @View({
     templateUrl: "/view/friendeditor/",      // Call ASP MVC to retrieve the partial view
-    directives: [CORE_DIRECTIVES]           // Call Core directives
+    directives: [CORE_DIRECTIVES, SetFont]           // Call Core directives and custom directives
 })
 class AppComponent {
     title: string;
@@ -68,4 +67,12 @@ class AppComponent {
 }
 
 
-bootstrap(AppComponent, [FriendService]);
+bootstrap(AppComponent, [
+    FriendService,
+// These are dependencies of our App
+    FORM_PROVIDERS,
+    ROUTER_PROVIDERS,
+    ELEMENT_PROBE_PROVIDERS
+]).then(
+    success => console.log('App Bootstrapped!'),
+    error => console.log(error));

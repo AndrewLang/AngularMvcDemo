@@ -8,15 +8,21 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 //import * as angular from 'angular2/angular2';
 var angular2_1 = require('angular2/angular2');
-var Person = (function () {
-    function Person(name) {
+var router_1 = require('angular2/router');
+//import {Injectable} from 'angular2/angular2';
+var Person_ts_1 = require('./models/Person.ts');
+var FriendService_ts_1 = require('./services/FriendService.ts');
+/*
+export class Person {
+    Name: string;
+    constructor(name: string) {
         this.Name = name;
     }
-    return Person;
-})();
-exports.Person = Person;
-var FriendService = (function () {
-    function FriendService() {
+}
+export class FriendService {
+    Persons: Array<Person>;
+
+    constructor() {
         this.Persons = [
             new Person("Arav"),
             new Person("Martin"),
@@ -24,20 +30,36 @@ var FriendService = (function () {
             new Person("Andrew")
         ];
     }
-    return FriendService;
-})();
-exports.FriendService = FriendService;
-var XLarge = (function () {
-    function XLarge(element) {
-        element.nativeElement.style.fontSize = 'x-large';
+}
+
+@Directive({
+    selector: '[tooltip]',
+    inputs: [
+        'text: tooltip'
+    ],
+    host: {
+        '(mouseenter)': 'onMouseEnter()',
+        '(mouseleave)': 'onMouseLeave()'
     }
-    XLarge = __decorate([
-        angular2_1.Directive({
-            selector: '[x-large]'
-        })
-    ], XLarge);
-    return XLarge;
-})();
+})
+class Tooltip {
+    text: string;
+    overlay: Overlay; // NOT YET IMPLEMENTED
+    overlayManager: OverlayManager; // NOT YET IMPLEMENTED
+
+    constructor(overlayManager: OverlayManager) {
+        this.overlay = overlay;
+    }
+    onMouseEnter() {
+        // exact signature to be determined
+        this.overlay = this.overlayManager.open(this.text, ...);
+    }
+    onMouseLeave() {
+        this.overlay.close();
+        this.overlay = null;
+    }
+}
+*/
 var AppComponent = (function () {
     function AppComponent(friendService) {
         console.log("Start app component.");
@@ -47,7 +69,7 @@ var AppComponent = (function () {
     }
     AppComponent.prototype.addFriend = function (newFriend) {
         if (newFriend.value) {
-            var friend = new Person(newFriend.value);
+            var friend = new Person_ts_1.Person(newFriend.value);
             this.Persons.push(friend);
             newFriend.value = null;
         }
@@ -71,4 +93,4 @@ var AppComponent = (function () {
     ], AppComponent);
     return AppComponent;
 })();
-angular2_1.bootstrap(AppComponent, [FriendService]);
+angular2_1.bootstrap(AppComponent, [FriendService_ts_1.FriendService, router_1.ROUTER_PROVIDERS]);
