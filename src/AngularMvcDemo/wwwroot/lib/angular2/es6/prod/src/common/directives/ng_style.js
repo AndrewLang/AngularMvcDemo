@@ -1,40 +1,36 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { KeyValueDiffers } from 'angular2/src/core/change_detection';
-import { ElementRef } from 'angular2/src/core/linker';
-import { Directive } from 'angular2/src/core/metadata';
-import { Renderer } from 'angular2/src/core/render';
+import { KeyValueDiffers, ElementRef, Directive, Renderer } from 'angular2/core';
 import { isPresent, isBlank } from 'angular2/src/facade/lang';
 /**
  * The `NgStyle` directive changes styles based on a result of expression evaluation.
  *
- * An expression assigned to the `ng-style` property must evaluate to an object and the
+ * An expression assigned to the `ngStyle` property must evaluate to an object and the
  * corresponding element styles are updated based on changes to this object. Style names to update
  * are taken from the object's keys, and values - from the corresponding object's values.
  *
- *##Syntax
+ * ### Syntax
  *
- * - `<div [ng-style]="{'font-style': style}"></div>`
- * - `<div [ng-style]="styleExp"></div>` - here the `styleExp` must evaluate to an object
+ * - `<div [ngStyle]="{'font-style': style}"></div>`
+ * - `<div [ngStyle]="styleExp"></div>` - here the `styleExp` must evaluate to an object
  *
  * ### Example ([live demo](http://plnkr.co/edit/YamGS6GkUh9GqWNQhCyM?p=preview)):
  *
  * ```
- * import {Component, NgStyle} from 'angular2/angular2';
+ * import {Component} from 'angular2/core';
+ * import {NgStyle} from 'angular2/common';
  *
  * @Component({
- *  selector: 'ng-style-example',
+ *  selector: 'ngStyle-example',
  *  template: `
- *    <h1 [ng-style]="{'font-style': style, 'font-size': size, 'font-weight': weight}">
+ *    <h1 [ngStyle]="{'font-style': style, 'font-size': size, 'font-weight': weight}">
  *      Change style of this text!
  *    </h1>
  *
@@ -76,7 +72,7 @@ export let NgStyle = class {
             this._differ = this._differs.find(this._rawStyle).create(null);
         }
     }
-    doCheck() {
+    ngDoCheck() {
         if (isPresent(this._differ)) {
             var changes = this._differ.diff(this._rawStyle);
             if (isPresent(changes)) {
@@ -94,7 +90,6 @@ export let NgStyle = class {
     }
 };
 NgStyle = __decorate([
-    Directive({ selector: '[ng-style]', inputs: ['rawStyle: ng-style'] }), 
+    Directive({ selector: '[ngStyle]', inputs: ['rawStyle: ngStyle'] }), 
     __metadata('design:paramtypes', [KeyValueDiffers, ElementRef, Renderer])
 ], NgStyle);
-//# sourceMappingURL=ng_style.js.map

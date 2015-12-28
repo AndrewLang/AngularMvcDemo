@@ -1,21 +1,21 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { RequestMethods, ResponseTypes } from '../enums';
+import { RequestMethod, ResponseType } from '../enums';
 import { Response } from '../static_response';
+import { Headers } from '../headers';
 import { ResponseOptions } from '../base_response_options';
-import { Injectable } from 'angular2/angular2';
+import { Injectable } from 'angular2/core';
 import { BrowserXhr } from './browser_xhr';
 import { isPresent } from 'angular2/src/facade/lang';
-import { Observable } from 'angular2/angular2';
+import { Observable } from 'rxjs/Observable';
+import { isSuccess, getResponseURL } from '../http_utils';
 /**
 * Creates connections using `XMLHttpRequest`. Given a fully-qualified
 * request, an `XHRConnection` will immediately create an `XMLHttpRequest` object and send the
@@ -29,32 +29,39 @@ export class XHRConnection {
         this.request = req;
         this.response = new Observable(responseObserver => {
             let _xhr = browserXHR.build();
-            _xhr.open(RequestMethods[req.method].toUpperCase(), req.url);
+            _xhr.open(RequestMethod[req.method].toUpperCase(), req.url);
             // load event handler
             let onLoad = () => {
                 // responseText is the old-school way of retrieving response (supported by IE8 & 9)
                 // response/responseType properties were introduced in XHR Level2 spec (supported by
                 // IE10)
-                let response = isPresent(_xhr.response) ? _xhr.response : _xhr.responseText;
+                let body = isPresent(_xhr.response) ? _xhr.response : _xhr.responseText;
+                let headers = Headers.fromResponseHeaderString(_xhr.getAllResponseHeaders());
+                let url = getResponseURL(_xhr);
                 // normalize IE9 bug (http://bugs.jquery.com/ticket/1450)
                 let status = _xhr.status === 1223 ? 204 : _xhr.status;
                 // fix status code when it is 0 (0 status is undocumented).
                 // Occurs when accessing file resources or on Android 4.1 stock browser
                 // while retrieving files from application cache.
                 if (status === 0) {
-                    status = response ? 200 : 0;
+                    status = body ? 200 : 0;
                 }
-                var responseOptions = new ResponseOptions({ body: response, status: status });
+                var responseOptions = new ResponseOptions({ body, status, headers, url });
                 if (isPresent(baseResponseOptions)) {
                     responseOptions = baseResponseOptions.merge(responseOptions);
                 }
-                responseObserver.next(new Response(responseOptions));
-                // TODO(gdi2290): defer complete if array buffer until done
-                responseObserver.complete();
+                let response = new Response(responseOptions);
+                if (isSuccess(status)) {
+                    responseObserver.next(response);
+                    // TODO(gdi2290): defer complete if array buffer until done
+                    responseObserver.complete();
+                    return;
+                }
+                responseObserver.error(response);
             };
             // error event handler
             let onError = (err) => {
-                var responseOptions = new ResponseOptions({ body: err, type: ResponseTypes.Error });
+                var responseOptions = new ResponseOptions({ body: err, type: ResponseType.Error });
                 if (isPresent(baseResponseOptions)) {
                     responseOptions = baseResponseOptions.merge(responseOptions);
                 }
@@ -113,4 +120,3 @@ XHRBackend = __decorate([
     Injectable(), 
     __metadata('design:paramtypes', [BrowserXhr, ResponseOptions])
 ], XHRBackend);
-//# sourceMappingURL=xhr_backend.js.map

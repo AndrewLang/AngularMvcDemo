@@ -1,36 +1,31 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Injector, Injectable } from 'angular2/src/core/di';
+import { DirectiveResolver, DynamicComponentLoader, Injector, Injectable, ViewResolver } from 'angular2/core';
 import { isPresent } from 'angular2/src/facade/lang';
 import { MapWrapper } from 'angular2/src/facade/collection';
-import { DirectiveResolver } from 'angular2/src/core/linker/directive_resolver';
-import { ViewResolver } from 'angular2/src/core/linker/view_resolver';
 import { internalView } from 'angular2/src/core/linker/view_ref';
-import { DynamicComponentLoader } from 'angular2/src/core/linker/dynamic_component_loader';
 import { el } from './utils';
-import { DOCUMENT } from 'angular2/src/core/render/render';
-import { DOM } from 'angular2/src/core/dom/dom_adapter';
+import { DOCUMENT } from 'angular2/src/platform/dom/dom_tokens';
+import { DOM } from 'angular2/src/platform/dom/dom_adapter';
 import { DebugElement_ } from 'angular2/src/core/debug/debug_element';
 /**
- * @deprecated Use ComponentFixture
+ * Fixture for debugging and testing a component.
  */
-export class RootTestComponent {
-}
-export class ComponentFixture extends RootTestComponent {
+export class ComponentFixture {
 }
 export class ComponentFixture_ extends ComponentFixture {
     constructor(componentRef) {
         super();
         this.debugElement = new DebugElement_(internalView(componentRef.hostView), 0);
+        this.componentInstance = this.debugElement.componentInstance;
+        this.nativeElement = this.debugElement.nativeElement;
         this._componentParentView = internalView(componentRef.hostView);
         this._componentRef = componentRef;
     }
@@ -197,4 +192,3 @@ TestComponentBuilder = __decorate([
     Injectable(), 
     __metadata('design:paramtypes', [Injector])
 ], TestComponentBuilder);
-//# sourceMappingURL=test_component_builder.js.map

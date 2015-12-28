@@ -1,10 +1,8 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
@@ -14,8 +12,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 import { CONST_EXPR } from 'angular2/src/facade/lang';
 import { EventEmitter, ObservableWrapper } from 'angular2/src/facade/async';
-import { Directive } from 'angular2/src/core/metadata';
-import { forwardRef, Provider, Inject, Optional } from 'angular2/src/core/di';
+import { Directive, forwardRef, Provider, Inject, Optional, Self } from 'angular2/core';
 import { NG_VALUE_ACCESSOR } from './control_value_accessor';
 import { NgControl } from './ng_control';
 import { Control } from '../model';
@@ -25,10 +22,10 @@ const formControlBinding = CONST_EXPR(new Provider(NgControl, { useExisting: for
 /**
  * Binds a domain model to a form control.
  *
- *##Usage
+ * ### Usage
  *
- * `ng-model` binds an existing domain model to a form control. For a
- * two-way binding, use `[(ng-model)]` to ensure the model updates in
+ * `ngModel` binds an existing domain model to a form control. For a
+ * two-way binding, use `[(ngModel)]` to ensure the model updates in
  * both directions.
  *
  * ### Example ([live demo](http://plnkr.co/edit/R3UX5qDaUqFO2VYR0UzH?p=preview))
@@ -36,7 +33,7 @@ const formControlBinding = CONST_EXPR(new Provider(NgControl, { useExisting: for
  * @Component({
  *      selector: "search-comp",
  *      directives: [FORM_DIRECTIVES],
- *      template: `<input type='text' [(ng-model)]="searchQuery">`
+ *      template: `<input type='text' [(ngModel)]="searchQuery">`
  *      })
  * class SearchComp {
  *  searchQuery: string;
@@ -55,7 +52,7 @@ export let NgModel = class extends NgControl {
         this.update = new EventEmitter();
         this.valueAccessor = selectValueAccessor(this, valueAccessors);
     }
-    onChanges(changes) {
+    ngOnChanges(changes) {
         if (!this._added) {
             setUpControl(this._control, this);
             this._control.updateValueAndValidity({ emitEvent: false });
@@ -72,23 +69,25 @@ export let NgModel = class extends NgControl {
     get asyncValidator() { return composeAsyncValidators(this._asyncValidators); }
     viewToModelUpdate(newValue) {
         this.viewModel = newValue;
-        ObservableWrapper.callNext(this.update, newValue);
+        ObservableWrapper.callEmit(this.update, newValue);
     }
 };
 NgModel = __decorate([
     Directive({
-        selector: '[ng-model]:not([ng-control]):not([ng-form-control])',
+        selector: '[ngModel]:not([ngControl]):not([ngFormControl])',
         bindings: [formControlBinding],
         inputs: ['model: ngModel'],
         outputs: ['update: ngModelChange'],
-        exportAs: 'form'
+        exportAs: 'ngForm'
     }),
     __param(0, Optional()),
+    __param(0, Self()),
     __param(0, Inject(NG_VALIDATORS)),
     __param(1, Optional()),
+    __param(1, Self()),
     __param(1, Inject(NG_ASYNC_VALIDATORS)),
     __param(2, Optional()),
+    __param(2, Self()),
     __param(2, Inject(NG_VALUE_ACCESSOR)), 
     __metadata('design:paramtypes', [Array, Array, Array])
 ], NgModel);
-//# sourceMappingURL=ng_model.js.map

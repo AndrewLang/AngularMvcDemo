@@ -17,7 +17,7 @@ export function internalProtoView(protoViewRef) {
  *
  * Properties of elements in a View can change, but the structure (number and order) of elements in
  * a View cannot. Changing the structure of Elements can only be done by inserting, moving or
- * removing nested Views via a {@link ViewContainer}. Each View can contain many View Containers.
+ * removing nested Views via a {@link ViewContainerRef}. Each View can contain many View Containers.
  * <!-- /TODO -->
  *
  * ### Example
@@ -27,7 +27,7 @@ export function internalProtoView(protoViewRef) {
  * ```
  * Count: {{items.length}}
  * <ul>
- *   <li *ng-for="var item of items">{{item}}</li>
+ *   <li *ngFor="var item of items">{{item}}</li>
  * </ul>
  * ```
  *
@@ -37,7 +37,7 @@ export function internalProtoView(protoViewRef) {
  * ```
  * Count: {{items.length}}
  * <ul>
- *   <template ng-for var-item [ng-for-of]="items"></template>
+ *   <template ngFor var-item [ngForOf]="items"></template>
  * </ul>
  * ```
  *
@@ -110,7 +110,7 @@ export class ViewRef_ extends ViewRef {
  * ```
  * Count: {{items.length}}
  * <ul>
- *   <li *ng-for="var item of items">{{item}}</li>
+ *   <li *ngFor="var item of items">{{item}}</li>
  * </ul>
  * ```
  *
@@ -120,7 +120,7 @@ export class ViewRef_ extends ViewRef {
  * ```
  * Count: {{items.length}}
  * <ul>
- *   <template ng-for var-item [ng-for-of]="items"></template>
+ *   <template ngFor var-item [ngForOf]="items"></template>
  * </ul>
  * ```
  *
@@ -139,4 +139,3 @@ export class ProtoViewRef_ extends ProtoViewRef {
         this._protoView = _protoView;
     }
 }
-//# sourceMappingURL=view_ref.js.map

@@ -1,10 +1,8 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
@@ -12,9 +10,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import { isBlank, isString, isArray, StringWrapper } from 'angular2/src/facade/lang';
 import { BaseException } from 'angular2/src/facade/exceptions';
 import { ListWrapper } from 'angular2/src/facade/collection';
-import { Injectable } from 'angular2/src/core/di';
+import { Injectable, Pipe } from 'angular2/core';
 import { InvalidPipeArgumentException } from './invalid_pipe_argument_exception';
-import { Pipe } from 'angular2/src/core/metadata';
 /**
  * Creates a new List or String containing only a subset (slice) of the
  * elements.
@@ -23,7 +20,7 @@ import { Pipe } from 'angular2/src/core/metadata';
  *
  * The ending index of the subset to return is specified by the optional `end` parameter.
  *
- *##Usage
+ * ### Usage
  *
  *     expression | slice:start[:end]
  *
@@ -51,13 +48,11 @@ import { Pipe } from 'angular2/src/core/metadata';
  * When operating on a [List], the returned list is always a copy even when all
  * the elements are being returned.
  *
- * ### Examples
- *
  * ## List Example
  *
- * Assuming `var collection = ['a', 'b', 'c', 'd']`, this `ng-for` directive:
+ * This `ngFor` example:
  *
- *     <li *ng-for="var i of collection | slice:1:3">{{i}}</li>
+ * {@example core/pipes/ts/slice_pipe/slice_pipe_example.ts region='SlicePipe_list'}
  *
  * produces the following:
  *
@@ -66,12 +61,7 @@ import { Pipe } from 'angular2/src/core/metadata';
  *
  * ## String Examples
  *
- *     {{ 'abcdefghij' | slice:0:4 }}       // output is 'abcd'
- *     {{ 'abcdefghij' | slice:4:0 }}       // output is ''
- *     {{ 'abcdefghij' | slice:-4 }}      // output is 'ghij'
- *     {{ 'abcdefghij' | slice:-4,-2 }}      // output is 'gh'
- *     {{ 'abcdefghij' | slice: -100 }}    // output is 'abcdefghij'
- *     {{ 'abcdefghij' | slice: 100 }}    // output is ''
+ * {@example core/pipes/ts/slice_pipe/slice_pipe_example.ts region='SlicePipe_string'}
  */
 export let SlicePipe = class {
     transform(value, args = null) {
@@ -97,4 +87,3 @@ SlicePipe = __decorate([
     Injectable(), 
     __metadata('design:paramtypes', [])
 ], SlicePipe);
-//# sourceMappingURL=slice_pipe.js.map

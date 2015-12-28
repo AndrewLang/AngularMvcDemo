@@ -1,10 +1,8 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
@@ -12,12 +10,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import { isNumber, isPresent, isBlank, NumberWrapper, RegExpWrapper, CONST } from 'angular2/src/facade/lang';
 import { BaseException } from 'angular2/src/facade/exceptions';
 import { NumberFormatter, NumberFormatStyle } from 'angular2/src/facade/intl';
-import { Injectable } from 'angular2/src/core/di';
-import { Pipe } from 'angular2/src/core/metadata';
+import { Injectable, Pipe } from 'angular2/core';
 import { ListWrapper } from 'angular2/src/facade/collection';
 import { InvalidPipeArgumentException } from './invalid_pipe_argument_exception';
 var defaultLocale = 'en-US';
 var _re = RegExpWrapper.create('^(\\d+)?\\.((\\d+)(\\-(\\d+))?)?$');
+/**
+ * Internal base class for numeric pipes.
+ */
 export let NumberPipe = class {
     /** @internal */
     static _format(value, style, digits, currency = null, currencyAsSymbol = false) {
@@ -63,7 +63,7 @@ NumberPipe = __decorate([
  * Formats a number as local text. i.e. group sizing and separator and other locale-specific
  * configurations are based on the active locale.
  *
- *##Usage
+ * ### Usage
  *
  *     expression | number[:digitInfo]
  *
@@ -78,11 +78,9 @@ NumberPipe = __decorate([
  * For more information on the acceptable range for each of these numbers and other
  * details see your native internationalization library.
  *
- * ### Examples
+ * ### Example
  *
- *     {{ 123 | number }}              // output is 123
- *     {{ 123.1 | number: '.2-3' }}    // output is 123.10
- *     {{ 1 | number: '2.2' }}         // output is 01.00
+ * {@example core/pipes/ts/number_pipe/number_pipe_example.ts region='NumberPipe'}
  */
 export let DecimalPipe = class extends NumberPipe {
     transform(value, args) {
@@ -102,11 +100,15 @@ DecimalPipe = __decorate([
  *
  * Formats a number as local percent.
  *
- *##Usage
+ * ### Usage
  *
  *     expression | percent[:digitInfo]
  *
  * For more information about `digitInfo` see {@link DecimalPipe}
+ *
+ * ### Example
+ *
+ * {@example core/pipes/ts/number_pipe/number_pipe_example.ts region='PercentPipe'}
  */
 export let PercentPipe = class extends NumberPipe {
     transform(value, args) {
@@ -126,7 +128,7 @@ PercentPipe = __decorate([
  *
  * Formats a number as local currency.
  *
- *##Usage
+ * ### Usage
  *
  *     expression | currency[:currencyCode[:symbolDisplay[:digitInfo]]]
  *
@@ -135,6 +137,10 @@ PercentPipe = __decorate([
  * symbol (e.g. $) or the currency code (e.g. USD) in the output. The default for this value
  * is `false`.
  * For more information about `digitInfo` see {@link DecimalPipe}
+ *
+ * ### Example
+ *
+ * {@example core/pipes/ts/number_pipe/number_pipe_example.ts region='CurrencyPipe'}
  */
 export let CurrencyPipe = class extends NumberPipe {
     transform(value, args) {
@@ -150,4 +156,3 @@ CurrencyPipe = __decorate([
     Injectable(), 
     __metadata('design:paramtypes', [])
 ], CurrencyPipe);
-//# sourceMappingURL=number_pipe.js.map

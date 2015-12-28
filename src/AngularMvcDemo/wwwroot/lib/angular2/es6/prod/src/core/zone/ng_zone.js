@@ -26,7 +26,8 @@ export class NgZoneError {
  *
  * ### Example ([live demo](http://plnkr.co/edit/lY9m8HLy7z06vDoUaSN2?p=preview))
  * ```
- * import {Component, View, NgIf, NgZone} from 'angular2/angular2';
+ * import {Component, View, NgZone} from 'angular2/core';
+ * import {NgIf} from 'angular2/common';
  *
  * @Component({
  *   selector: 'ng-zone-demo'.
@@ -34,7 +35,7 @@ export class NgZoneError {
  *     <h2>Demo: NgZone</h2>
  *
  *     <p>Progress: {{progress}}%</p>
- *     <p *ng-if="progress >= 100">Done processing {{label}} of Angular zone!</p>
+ *     <p *ngIf="progress >= 100">Done processing {{label}} of Angular zone!</p>
  *
  *     <button (click)="processWithinAngularZone()">Process within Angular zone</button>
  *     <button (click)="processOutsideOfAngularZone()">Process outside of Angular zone</button>
@@ -142,7 +143,7 @@ export class NgZone {
     get onTurnStart() { return this._onTurnStartEvents; }
     /** @internal */
     _notifyOnTurnStart(parentRun) {
-        parentRun.call(this._innerZone, () => { this._onTurnStartEvents.next(null); });
+        parentRun.call(this._innerZone, () => { this._onTurnStartEvents.emit(null); });
     }
     /**
      * Sets the zone hook that is called immediately after Angular zone is done processing the current
@@ -168,7 +169,7 @@ export class NgZone {
     get onTurnDone() { return this._onTurnDoneEvents; }
     /** @internal */
     _notifyOnTurnDone(parentRun) {
-        parentRun.call(this._innerZone, () => { this._onTurnDoneEvents.next(null); });
+        parentRun.call(this._innerZone, () => { this._onTurnDoneEvents.emit(null); });
     }
     /**
      * Sets the zone hook that is called immediately after the `onTurnDone` callback is called and any
@@ -205,7 +206,7 @@ export class NgZone {
     get onEventDone() { return this._onEventDoneEvents; }
     /** @internal */
     _notifyOnEventDone() {
-        this.runOutsideAngular(() => { this._onEventDoneEvents.next(null); });
+        this.runOutsideAngular(() => { this._onEventDoneEvents.emit(null); });
     }
     /**
      * Whether there are any outstanding microtasks.
@@ -383,7 +384,7 @@ export class NgZone {
                 zone = zone.parent;
             }
             if (ObservableWrapper.hasSubscribers(this._onErrorEvents)) {
-                ObservableWrapper.callNext(this._onErrorEvents, new NgZoneError(e, trace));
+                ObservableWrapper.callEmit(this._onErrorEvents, new NgZoneError(e, trace));
             }
             if (isPresent(this._onErrorHandler)) {
                 this._onErrorHandler(e, trace);
@@ -396,4 +397,3 @@ export class NgZone {
         }
     }
 }
-//# sourceMappingURL=ng_zone.js.map

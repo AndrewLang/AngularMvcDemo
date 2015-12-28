@@ -1,10 +1,8 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
@@ -195,8 +193,8 @@ import { ChangeDetectionStrategy } from 'angular2/src/core/change_detection';
  * A directive can also query for other child directives. Since parent directives are instantiated
  * before child directives, a directive can't simply inject the list of child directives. Instead,
  * the directive injects a {@link QueryList}, which updates its contents as children are added,
- * removed, or moved by a directive that uses a {@link ViewContainerRef} such as a `ng-for`, an
- * `ng-if`, or an `ng-switch`.
+ * removed, or moved by a directive that uses a {@link ViewContainerRef} such as a `ngFor`, an
+ * `ngIf`, or an `ngSwitch`.
  *
  * ```
  * @Directive({ selector: '[my-directive]' })
@@ -391,7 +389,7 @@ import { ChangeDetectionStrategy } from 'angular2/src/core/change_detection';
  * view occurs on the second `<li></li>` which is a sibling to the `<template>` element.
  */
 export let DirectiveMetadata = class extends InjectableMetadata {
-    constructor({ selector, inputs, outputs, properties, events, host, bindings, providers, exportAs, moduleId, queries } = {}) {
+    constructor({ selector, inputs, outputs, properties, events, host, bindings, providers, exportAs, queries } = {}) {
         super();
         this.selector = selector;
         this._inputs = inputs;
@@ -400,7 +398,6 @@ export let DirectiveMetadata = class extends InjectableMetadata {
         this._events = events;
         this.host = host;
         this.exportAs = exportAs;
-        this.moduleId = moduleId;
         this.queries = queries;
         this._providers = providers;
         this._bindings = bindings;
@@ -481,8 +478,8 @@ export let DirectiveMetadata = class extends InjectableMetadata {
      *   five5Secs = new EventEmitter();
      *
      *   constructor() {
-     *     setInterval(() => this.everySecond.next("event"), 1000);
-     *     setInterval(() => this.five5Secs.next("event"), 5000);
+     *     setInterval(() => this.everySecond.emit("event"), 1000);
+     *     setInterval(() => this.five5Secs.emit("event"), 5000);
      *   }
      * }
      *
@@ -550,7 +547,7 @@ DirectiveMetadata = __decorate([
 /**
  * Declare reusable UI building blocks for an application.
  *
- * Each Angular component requires a single `@Component` and at least one `@View` annotation. The
+ * Each Angular component requires a single `@Component` annotation. The
  * `@Component`
  * annotation specifies when a component is instantiated, and which properties and hostListeners it
  * binds to.
@@ -571,20 +568,7 @@ DirectiveMetadata = __decorate([
  *
  * ### Example
  *
- * ```
- * @Component({
- *   selector: 'greet',
- *   template: 'Hello {{name}}!'
- * })
- * class Greet {
- *   name: string;
- *
- *   constructor() {
- *     this.name = 'World';
- *   }
- * }
- * ```
- *
+ * {@example core/ts/metadata/metadata.ts region='component'}
  */
 export let ComponentMetadata = class extends DirectiveMetadata {
     constructor({ selector, inputs, outputs, properties, events, host, exportAs, moduleId, bindings, providers, viewBindings, viewProviders, changeDetection = ChangeDetectionStrategy.Default, queries, templateUrl, template, styleUrls, styles, directives, pipes, encapsulation } = {}) {
@@ -596,7 +580,6 @@ export let ComponentMetadata = class extends DirectiveMetadata {
             events: events,
             host: host,
             exportAs: exportAs,
-            moduleId: moduleId,
             bindings: bindings,
             providers: providers,
             queries: queries
@@ -611,6 +594,7 @@ export let ComponentMetadata = class extends DirectiveMetadata {
         this.directives = directives;
         this.pipes = pipes;
         this.encapsulation = encapsulation;
+        this.moduleId = moduleId;
     }
     /**
      * Defines the set of injectable objects that are visible to its view DOM children.
@@ -669,12 +653,7 @@ ComponentMetadata = __decorate([
  *
  * ### Example
  *
- * ```
- * @Pipe({name: 'lowercase'})
- * class Lowercase {
- *   transform(v, args) { return v.toLowerCase(); }
- * }
- * ```
+ * {@example core/ts/metadata/metadata.ts region='pipe'}
  */
 export let PipeMetadata = class extends InjectableMetadata {
     constructor({ name, pure }) {
@@ -763,8 +742,8 @@ InputMetadata = __decorate([
  *   @Output('everyFiveSeconds') five5Secs = new EventEmitter();
  *
  *   constructor() {
- *     setInterval(() => this.everySecond.next("event"), 1000);
- *     setInterval(() => this.five5Secs.next("event"), 5000);
+ *     setInterval(() => this.everySecond.emit("event"), 1000);
+ *     setInterval(() => this.five5Secs.emit("event"), 5000);
  *   }
  * }
  *
@@ -805,10 +784,10 @@ OutputMetadata = __decorate([
  * ### Example
  *
  * The following example creates a directive that sets the `valid` and `invalid` classes
- * on the DOM element that has ng-model directive on it.
+ * on the DOM element that has ngModel directive on it.
  *
  * ```typescript
- * @Directive({selector: '[ng-model]'})
+ * @Directive({selector: '[ngModel]'})
  * class NgModelStatus {
  *   constructor(public control:NgModel) {}
  *   @HostBinding('[class.valid]') get valid { return this.control.valid; }
@@ -817,7 +796,7 @@ OutputMetadata = __decorate([
  *
  * @Component({
  *   selector: 'app',
- *   template: `<input [(ng-model)]="prop">`,
+ *   template: `<input [(ngModel)]="prop">`,
  *   directives: [FORM_DIRECTIVES, NgModelStatus]
  * })
  * class App {
@@ -880,4 +859,3 @@ HostListenerMetadata = __decorate([
     CONST(), 
     __metadata('design:paramtypes', [String, Array])
 ], HostListenerMetadata);
-//# sourceMappingURL=directives.js.map

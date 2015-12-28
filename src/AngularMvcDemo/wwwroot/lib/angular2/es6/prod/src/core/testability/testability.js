@@ -1,16 +1,13 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Injectable } from 'angular2/src/core/di';
-import { DOM } from 'angular2/src/core/dom/dom_adapter';
 import { Map, MapWrapper } from 'angular2/src/facade/collection';
 import { CONST, CONST_EXPR } from 'angular2/src/facade/lang';
 import { BaseException } from 'angular2/src/facade/exceptions';
@@ -89,45 +86,42 @@ Testability = __decorate([
     Injectable(), 
     __metadata('design:paramtypes', [NgZone])
 ], Testability);
+/**
+ * A global registry of {@link Testability} instances for specific elements.
+ */
 export let TestabilityRegistry = class {
     constructor() {
         /** @internal */
         this._applications = new Map();
-        testabilityGetter.addToWindow(this);
+        _testabilityGetter.addToWindow(this);
     }
     registerApplication(token, testability) {
         this._applications.set(token, testability);
     }
+    getTestability(elem) { return this._applications.get(elem); }
     getAllTestabilities() { return MapWrapper.values(this._applications); }
     findTestabilityInTree(elem, findInAncestors = true) {
-        if (elem == null) {
-            return null;
-        }
-        if (this._applications.has(elem)) {
-            return this._applications.get(elem);
-        }
-        else if (!findInAncestors) {
-            return null;
-        }
-        if (DOM.isShadowRoot(elem)) {
-            return this.findTestabilityInTree(DOM.getHost(elem));
-        }
-        return this.findTestabilityInTree(DOM.parentElement(elem));
+        return _testabilityGetter.findTestabilityInTree(this, elem, findInAncestors);
     }
 };
 TestabilityRegistry = __decorate([
     Injectable(), 
     __metadata('design:paramtypes', [])
 ], TestabilityRegistry);
-let NoopGetTestability = class {
+let _NoopGetTestability = class {
     addToWindow(registry) { }
+    findTestabilityInTree(registry, elem, findInAncestors) {
+        return null;
+    }
 };
-NoopGetTestability = __decorate([
+_NoopGetTestability = __decorate([
     CONST(), 
     __metadata('design:paramtypes', [])
-], NoopGetTestability);
+], _NoopGetTestability);
+/**
+ * Set the {@link GetTestability} implementation used by the Angular testing framework.
+ */
 export function setTestabilityGetter(getter) {
-    testabilityGetter = getter;
+    _testabilityGetter = getter;
 }
-var testabilityGetter = CONST_EXPR(new NoopGetTestability());
-//# sourceMappingURL=testability.js.map
+var _testabilityGetter = CONST_EXPR(new _NoopGetTestability());

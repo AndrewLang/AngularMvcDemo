@@ -1,17 +1,13 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Directive } from 'angular2/src/core/metadata';
-import { ChangeDetectorRef, IterableDiffers } from 'angular2/src/core/change_detection';
-import { ViewContainerRef, TemplateRef } from 'angular2/src/core/linker';
+import { Directive, ChangeDetectorRef, IterableDiffers, ViewContainerRef, TemplateRef } from 'angular2/core';
 import { isPresent, isBlank } from 'angular2/src/facade/lang';
 /**
  * The `NgFor` directive instantiates a template once per item from an iterable. The context for
@@ -53,9 +49,9 @@ import { isPresent, isBlank } from 'angular2/src/facade/lang';
  *
  * # Syntax
  *
- * - `<li *ng-for="#item of items; #i = index">...</li>`
- * - `<li template="ng-for #item of items; #i = index">...</li>`
- * - `<template ng-for #item [ng-for-of]="items" #i="index"><li>...</li></template>`
+ * - `<li *ngFor="#item of items; #i = index">...</li>`
+ * - `<li template="ngFor #item of items; #i = index">...</li>`
+ * - `<template ngFor #item [ngForOf]="items" #i="index"><li>...</li></template>`
  *
  * ### Example
  *
@@ -80,7 +76,7 @@ export let NgFor = class {
             this._templateRef = value;
         }
     }
-    doCheck() {
+    ngDoCheck() {
         if (isPresent(this._differ)) {
             var changes = this._differ.diff(this._ngForOf);
             if (isPresent(changes))
@@ -141,7 +137,7 @@ export let NgFor = class {
     }
 };
 NgFor = __decorate([
-    Directive({ selector: '[ng-for][ng-for-of]', inputs: ['ngForOf', 'ngForTemplate'] }), 
+    Directive({ selector: '[ngFor][ngForOf]', inputs: ['ngForOf', 'ngForTemplate'] }), 
     __metadata('design:paramtypes', [ViewContainerRef, TemplateRef, IterableDiffers, ChangeDetectorRef])
 ], NgFor);
 class RecordViewTuple {
@@ -150,4 +146,3 @@ class RecordViewTuple {
         this.view = view;
     }
 }
-//# sourceMappingURL=ng_for.js.map

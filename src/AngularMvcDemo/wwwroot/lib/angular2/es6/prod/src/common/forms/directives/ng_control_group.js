@@ -1,10 +1,8 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
@@ -12,8 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Directive } from 'angular2/src/core/metadata';
-import { Optional, Inject, Host, SkipSelf, forwardRef, Provider } from 'angular2/src/core/di';
+import { Directive, Optional, Inject, Host, SkipSelf, forwardRef, Provider, Self } from 'angular2/core';
 import { CONST_EXPR } from 'angular2/src/facade/lang';
 import { ControlContainer } from './control_container';
 import { controlPath, composeValidators, composeAsyncValidators } from './shared';
@@ -24,7 +21,7 @@ const controlGroupProvider = CONST_EXPR(new Provider(ControlContainer, { useExis
  *
  * This directive can only be used as a child of {@link NgForm} or {@link NgFormModel}.
  *
- * # Example ([live demo](http://plnkr.co/edit/7EJ11uGeaggViYM6T5nq?p=preview))
+ * ### Example ([live demo](http://plnkr.co/edit/7EJ11uGeaggViYM6T5nq?p=preview))
  *
  * ```typescript
  * @Component({
@@ -35,18 +32,18 @@ const controlGroupProvider = CONST_EXPR(new Provider(ControlContainer, { useExis
  *   template: `
  *     <div>
  *       <h2>Angular2 Control &amp; ControlGroup Example</h2>
- *       <form #f="form">
- *         <div ng-control-group="name" #cg-name="form">
+ *       <form #f="ngForm">
+ *         <div ngControlGroup="name" #cg-name="form">
  *           <h3>Enter your name:</h3>
- *           <p>First: <input ng-control="first" required></p>
- *           <p>Middle: <input ng-control="middle"></p>
- *           <p>Last: <input ng-control="last" required></p>
+ *           <p>First: <input ngControl="first" required></p>
+ *           <p>Middle: <input ngControl="middle"></p>
+ *           <p>Last: <input ngControl="last" required></p>
  *         </div>
  *         <h3>Name value:</h3>
  *         <pre>{{valueOf(cgName)}}</pre>
  *         <p>Name is {{cgName?.control?.valid ? "valid" : "invalid"}}</p>
  *         <h3>What's your favorite food?</h3>
- *         <p><input ng-control="food"></p>
+ *         <p><input ngControl="food"></p>
  *         <h3>Form value</h3>
  *         <pre>{{valueOf(f)}}</pre>
  *       </form>
@@ -74,8 +71,8 @@ export let NgControlGroup = class extends ControlContainer {
         this._asyncValidators = _asyncValidators;
         this._parent = parent;
     }
-    onInit() { this.formDirective.addControlGroup(this); }
-    onDestroy() { this.formDirective.removeControlGroup(this); }
+    ngOnInit() { this.formDirective.addControlGroup(this); }
+    ngOnDestroy() { this.formDirective.removeControlGroup(this); }
     /**
      * Get the {@link ControlGroup} backing this binding.
      */
@@ -93,17 +90,18 @@ export let NgControlGroup = class extends ControlContainer {
 };
 NgControlGroup = __decorate([
     Directive({
-        selector: '[ng-control-group]',
+        selector: '[ngControlGroup]',
         providers: [controlGroupProvider],
-        inputs: ['name: ng-control-group'],
-        exportAs: 'form'
+        inputs: ['name: ngControlGroup'],
+        exportAs: 'ngForm'
     }),
     __param(0, Host()),
     __param(0, SkipSelf()),
     __param(1, Optional()),
+    __param(1, Self()),
     __param(1, Inject(NG_VALIDATORS)),
     __param(2, Optional()),
+    __param(2, Self()),
     __param(2, Inject(NG_ASYNC_VALIDATORS)), 
     __metadata('design:paramtypes', [ControlContainer, Array, Array])
 ], NgControlGroup);
-//# sourceMappingURL=ng_control_group.js.map

@@ -1,10 +1,8 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
@@ -15,8 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { CONST_EXPR } from 'angular2/src/facade/lang';
 import { StringMapWrapper } from 'angular2/src/facade/collection';
 import { EventEmitter, ObservableWrapper } from 'angular2/src/facade/async';
-import { Directive } from 'angular2/src/core/metadata';
-import { forwardRef, Provider, Inject, Optional } from 'angular2/src/core/di';
+import { Directive, forwardRef, Provider, Inject, Optional, Self } from 'angular2/core';
 import { NgControl } from './ng_control';
 import { NG_VALIDATORS, NG_ASYNC_VALIDATORS } from '../validators';
 import { NG_VALUE_ACCESSOR } from './control_value_accessor';
@@ -39,7 +36,7 @@ const formControlBinding = CONST_EXPR(new Provider(NgControl, { useExisting: for
  *       <h2>NgFormControl Example</h2>
  *       <form>
  *         <p>Element with existing control: <input type="text"
- * [ng-form-control]="loginControl"></p>
+ * [ngFormControl]="loginControl"></p>
  *         <p>Value of existing control: {{loginControl.value}}</p>
  *       </form>
  *     </div>
@@ -51,9 +48,9 @@ const formControlBinding = CONST_EXPR(new Provider(NgControl, { useExisting: for
  * }
  *  ```
  *
- *##ng-model
+ * ###ngModel
  *
- * We can also use `ng-model` to bind a domain model to the form.
+ * We can also use `ngModel` to bind a domain model to the form.
  *
  * ### Example ([live demo](http://plnkr.co/edit/yHMLuHO7DNgT8XvtjTDH?p=preview))
  *
@@ -61,7 +58,7 @@ const formControlBinding = CONST_EXPR(new Provider(NgControl, { useExisting: for
  * @Component({
  *      selector: "login-comp",
  *      directives: [FORM_DIRECTIVES],
- *      template: "<input type='text' [ng-form-control]='loginControl' [(ng-model)]='login'>"
+ *      template: "<input type='text' [ngFormControl]='loginControl' [(ngModel)]='login'>"
  *      })
  * class LoginComp {
  *  loginControl: Control = new Control('');
@@ -77,7 +74,7 @@ export let NgFormControl = class extends NgControl {
         this.update = new EventEmitter();
         this.valueAccessor = selectValueAccessor(this, valueAccessors);
     }
-    onChanges(changes) {
+    ngOnChanges(changes) {
         if (this._isControlChanged(changes)) {
             setUpControl(this.form, this);
             this.form.updateValueAndValidity({ emitEvent: false });
@@ -93,7 +90,7 @@ export let NgFormControl = class extends NgControl {
     get control() { return this.form; }
     viewToModelUpdate(newValue) {
         this.viewModel = newValue;
-        ObservableWrapper.callNext(this.update, newValue);
+        ObservableWrapper.callEmit(this.update, newValue);
     }
     _isControlChanged(changes) {
         return StringMapWrapper.contains(changes, "form");
@@ -101,18 +98,20 @@ export let NgFormControl = class extends NgControl {
 };
 NgFormControl = __decorate([
     Directive({
-        selector: '[ng-form-control]',
+        selector: '[ngFormControl]',
         bindings: [formControlBinding],
         inputs: ['form: ngFormControl', 'model: ngModel'],
         outputs: ['update: ngModelChange'],
-        exportAs: 'form'
+        exportAs: 'ngForm'
     }),
     __param(0, Optional()),
+    __param(0, Self()),
     __param(0, Inject(NG_VALIDATORS)),
     __param(1, Optional()),
+    __param(1, Self()),
     __param(1, Inject(NG_ASYNC_VALIDATORS)),
     __param(2, Optional()),
+    __param(2, Self()),
     __param(2, Inject(NG_VALUE_ACCESSOR)), 
     __metadata('design:paramtypes', [Array, Array, Array])
 ], NgFormControl);
-//# sourceMappingURL=ng_form_control.js.map

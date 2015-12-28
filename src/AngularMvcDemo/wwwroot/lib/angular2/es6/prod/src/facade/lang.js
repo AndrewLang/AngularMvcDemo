@@ -23,28 +23,25 @@ export function getTypeNameForDebugging(type) {
 }
 export var Math = _global.Math;
 export var Date = _global.Date;
-var _devMode = !!_global.angularDevMode;
-var _devModeLocked = false;
-export function lockDevMode() {
-    _devModeLocked = true;
+var _devMode = true;
+var _modeLocked = false;
+export function lockMode() {
+    _modeLocked = true;
 }
 /**
- * Enable Angular's development mode, which turns on assertions and other
+ * Disable Angular's development mode, which turns off assertions and other
  * checks within the framework.
  *
- * One important assertion this enables verifies that a change detection pass
+ * One important assertion this disables verifies that a change detection pass
  * does not result in additional changes to any bindings (also known as
  * unidirectional data flow).
- *
- * {@example core/ts/dev_mode/dev_mode_example.ts region='enableDevMode'}
  */
-export function enableDevMode() {
-    // TODO(alxhub): Refactor out of facade/lang as per issue #5157.
-    if (_devModeLocked) {
+export function enableProdMode() {
+    if (_modeLocked) {
         // Cannot use BaseException as that ends up importing from facade/lang.
-        throw 'Cannot enable dev mode after platform setup.';
+        throw 'Cannot enable prod mode after platform setup.';
     }
-    _devMode = true;
+    _devMode = false;
 }
 export function assertionsEnabled() {
     return _devMode;
@@ -93,6 +90,7 @@ export function isNumber(obj) {
 export function isDate(obj) {
     return obj instanceof Date && !isNaN(obj.valueOf());
 }
+export function noop() { }
 export function stringify(token) {
     if (typeof token === 'string') {
         return token;
@@ -120,6 +118,30 @@ export class StringWrapper {
     static charCodeAt(s, index) { return s.charCodeAt(index); }
     static split(s, regExp) { return s.split(regExp); }
     static equals(s, s2) { return s === s2; }
+    static stripLeft(s, charVal) {
+        if (s && s.length) {
+            var pos = 0;
+            for (var i = 0; i < s.length; i++) {
+                if (s[i] != charVal)
+                    break;
+                pos++;
+            }
+            s = s.substring(pos);
+        }
+        return s;
+    }
+    static stripRight(s, charVal) {
+        if (s && s.length) {
+            var pos = s.length;
+            for (var i = s.length - 1; i >= 0; i--) {
+                if (s[i] != charVal)
+                    break;
+                pos--;
+            }
+            s = s.substring(0, pos);
+        }
+        return s;
+    }
     static replace(s, from, replace) {
         return s.replace(from, replace);
     }
@@ -275,7 +297,7 @@ export function setValueOnPath(global, path, value) {
     var obj = global;
     while (parts.length > 1) {
         var name = parts.shift();
-        if (obj.hasOwnProperty(name)) {
+        if (obj.hasOwnProperty(name) && isPresent(obj[name])) {
             obj = obj[name];
         }
         else {
@@ -307,4 +329,3 @@ export function getSymbolIterator() {
     }
     return _symbolIterator;
 }
-//# sourceMappingURL=lang.js.map

@@ -1,10 +1,8 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
@@ -15,8 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { CONST_EXPR } from 'angular2/src/facade/lang';
 import { ListWrapper, StringMapWrapper } from 'angular2/src/facade/collection';
 import { ObservableWrapper, EventEmitter } from 'angular2/src/facade/async';
-import { Directive } from 'angular2/src/core/metadata';
-import { forwardRef, Provider, Inject, Optional } from 'angular2/src/core/di';
+import { Directive, forwardRef, Provider, Inject, Optional, Self } from 'angular2/core';
 import { ControlContainer } from './control_container';
 import { setUpControl, setUpControlGroup, composeValidators, composeAsyncValidators } from './shared';
 import { Validators, NG_VALIDATORS, NG_ASYNC_VALIDATORS } from '../validators';
@@ -35,9 +32,9 @@ const formDirectiveProvider = CONST_EXPR(new Provider(ControlContainer, { useExi
  *   template: `
  *     <div>
  *       <h2>NgFormModel Example</h2>
- *       <form [ng-form-model]="loginForm">
- *         <p>Login: <input type="text" ng-control="login"></p>
- *         <p>Password: <input type="password" ng-control="password"></p>
+ *       <form [ngFormModel]="loginForm">
+ *         <p>Login: <input type="text" ngControl="login"></p>
+ *         <p>Password: <input type="password" ngControl="password"></p>
  *       </form>
  *       <p>Value:</p>
  *       <pre>{{value}}</pre>
@@ -61,17 +58,17 @@ const formDirectiveProvider = CONST_EXPR(new Provider(ControlContainer, { useExi
  * }
  *  ```
  *
- * We can also use ng-model to bind a domain model to the form.
+ * We can also use ngModel to bind a domain model to the form.
  *
  *  ```typescript
  * @Component({
  *      selector: "login-comp",
  *      directives: [FORM_DIRECTIVES],
  *      template: `
- *        <form [ng-form-model]='loginForm'>
- *          Login <input type='text' ng-control='login' [(ng-model)]='credentials.login'>
- *          Password <input type='password' ng-control='password'
- *                          [(ng-model)]='credentials.password'>
+ *        <form [ngFormModel]='loginForm'>
+ *          Login <input type='text' ngControl='login' [(ngModel)]='credentials.login'>
+ *          Password <input type='password' ngControl='password'
+ *                          [(ngModel)]='credentials.password'>
  *          <button (click)="onLogin()">Login</button>
  *        </form>`
  *      })
@@ -102,7 +99,7 @@ export let NgFormModel = class extends ControlContainer {
         this.directives = [];
         this.ngSubmit = new EventEmitter();
     }
-    onChanges(changes) {
+    ngOnChanges(changes) {
         if (StringMapWrapper.contains(changes, "form")) {
             var sync = composeValidators(this._validators);
             this.form.validator = Validators.compose([this.form.validator, sync]);
@@ -137,7 +134,7 @@ export let NgFormModel = class extends ControlContainer {
         ctrl.updateValue(value);
     }
     onSubmit() {
-        ObservableWrapper.callNext(this.ngSubmit, null);
+        ObservableWrapper.callEmit(this.ngSubmit, null);
         return false;
     }
     /** @internal */
@@ -150,17 +147,18 @@ export let NgFormModel = class extends ControlContainer {
 };
 NgFormModel = __decorate([
     Directive({
-        selector: '[ng-form-model]',
+        selector: '[ngFormModel]',
         bindings: [formDirectiveProvider],
-        inputs: ['form: ng-form-model'],
+        inputs: ['form: ngFormModel'],
         host: { '(submit)': 'onSubmit()' },
         outputs: ['ngSubmit'],
-        exportAs: 'form'
+        exportAs: 'ngForm'
     }),
     __param(0, Optional()),
+    __param(0, Self()),
     __param(0, Inject(NG_VALIDATORS)),
     __param(1, Optional()),
+    __param(1, Self()),
     __param(1, Inject(NG_ASYNC_VALIDATORS)), 
     __metadata('design:paramtypes', [Array, Array])
 ], NgFormModel);
-//# sourceMappingURL=ng_form_model.js.map

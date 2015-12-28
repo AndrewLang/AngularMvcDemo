@@ -1,10 +1,8 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
@@ -14,8 +12,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 import { CONST_EXPR } from 'angular2/src/facade/lang';
 import { EventEmitter, ObservableWrapper } from 'angular2/src/facade/async';
-import { Directive } from 'angular2/src/core/metadata';
-import { forwardRef, Host, SkipSelf, Provider, Inject, Optional } from 'angular2/src/core/di';
+import { Directive, forwardRef, Host, SkipSelf, Provider, Inject, Optional, Self } from 'angular2/core';
 import { ControlContainer } from './control_container';
 import { NgControl } from './ng_control';
 import { NG_VALUE_ACCESSOR } from './control_value_accessor';
@@ -38,11 +35,11 @@ const controlNameBinding = CONST_EXPR(new Provider(NgControl, { useExisting: for
  *      selector: "login-comp",
  *      directives: [FORM_DIRECTIVES],
  *      template: `
- *        <form #f="form" (submit)='onLogIn(f.value)'>
- *          Login <input type='text' ng-control='login' #l="form">
- *          <div *ng-if="!l.valid">Login is invalid</div>
+ *        <form #f="ngForm" (submit)='onLogIn(f.value)'>
+ *          Login <input type='text' ngControl='login' #l="form">
+ *          <div *ngIf="!l.valid">Login is invalid</div>
  *
- *          Password <input type='password' ng-control='password'>
+ *          Password <input type='password' ngControl='password'>
  *          <button type='submit'>Log in!</button>
  *        </form>
  *      `})
@@ -53,7 +50,7 @@ const controlNameBinding = CONST_EXPR(new Provider(NgControl, { useExisting: for
  * }
  *  ```
  *
- * We can also use ng-model to bind a domain model to the form.
+ * We can also use ngModel to bind a domain model to the form.
  *
  *  ```
  * @Component({
@@ -61,9 +58,9 @@ const controlNameBinding = CONST_EXPR(new Provider(NgControl, { useExisting: for
  *      directives: [FORM_DIRECTIVES],
  *      template: `
  *        <form (submit)='onLogIn()'>
- *          Login <input type='text' ng-control='login' [(ng-model)]="credentials.login">
- *          Password <input type='password' ng-control='password'
- *                          [(ng-model)]="credentials.password">
+ *          Login <input type='text' ngControl='login' [(ngModel)]="credentials.login">
+ *          Password <input type='password' ngControl='password'
+ *                          [(ngModel)]="credentials.password">
  *          <button type='submit'>Log in!</button>
  *        </form>
  *      `})
@@ -88,7 +85,7 @@ export let NgControlName = class extends NgControl {
         this._added = false;
         this.valueAccessor = selectValueAccessor(this, valueAccessors);
     }
-    onChanges(changes) {
+    ngOnChanges(changes) {
         if (!this._added) {
             this.formDirective.addControl(this);
             this._added = true;
@@ -98,10 +95,10 @@ export let NgControlName = class extends NgControl {
             this.formDirective.updateModel(this, this.model);
         }
     }
-    onDestroy() { this.formDirective.removeControl(this); }
+    ngOnDestroy() { this.formDirective.removeControl(this); }
     viewToModelUpdate(newValue) {
         this.viewModel = newValue;
-        ObservableWrapper.callNext(this.update, newValue);
+        ObservableWrapper.callEmit(this.update, newValue);
     }
     get path() { return controlPath(this.name, this._parent); }
     get formDirective() { return this._parent.formDirective; }
@@ -111,20 +108,22 @@ export let NgControlName = class extends NgControl {
 };
 NgControlName = __decorate([
     Directive({
-        selector: '[ng-control]',
+        selector: '[ngControl]',
         bindings: [controlNameBinding],
         inputs: ['name: ngControl', 'model: ngModel'],
         outputs: ['update: ngModelChange'],
-        exportAs: 'form'
+        exportAs: 'ngForm'
     }),
     __param(0, Host()),
     __param(0, SkipSelf()),
     __param(1, Optional()),
+    __param(1, Self()),
     __param(1, Inject(NG_VALIDATORS)),
     __param(2, Optional()),
+    __param(2, Self()),
     __param(2, Inject(NG_ASYNC_VALIDATORS)),
     __param(3, Optional()),
+    __param(3, Self()),
     __param(3, Inject(NG_VALUE_ACCESSOR)), 
     __metadata('design:paramtypes', [ControlContainer, Array, Array, Array])
 ], NgControlName);
-//# sourceMappingURL=ng_control_name.js.map

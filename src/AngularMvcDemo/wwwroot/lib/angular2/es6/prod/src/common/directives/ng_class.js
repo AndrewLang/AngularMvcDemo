@@ -1,19 +1,14 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { isPresent, isString, isArray } from 'angular2/src/facade/lang';
-import { Directive } from 'angular2/src/core/metadata';
-import { ElementRef } from 'angular2/src/core/linker';
-import { IterableDiffers, KeyValueDiffers } from 'angular2/src/core/change_detection';
-import { Renderer } from 'angular2/src/core/render';
+import { Directive, ElementRef, IterableDiffers, KeyValueDiffers, Renderer } from 'angular2/core';
 import { StringMapWrapper, isListLikeIterable } from 'angular2/src/facade/collection';
 /**
  * The `NgClass` directive conditionally adds and removes CSS classes on an HTML element based on
@@ -34,13 +29,14 @@ import { StringMapWrapper, isListLikeIterable } from 'angular2/src/facade/collec
  * ### Example ([live demo](http://plnkr.co/edit/a4YdtmWywhJ33uqfpPPn?p=preview)):
  *
  * ```
- * import {Component, NgClass} from 'angular2/angular2';
+ * import {Component} from 'angular2/core';
+ * import {NgClass} from 'angular2/common';
  *
  * @Component({
  *   selector: 'toggle-button',
  *   inputs: ['isDisabled'],
  *   template: `
- *      <div class="button" [ng-class]="{active: isOn, disabled: isDisabled}"
+ *      <div class="button" [ngClass]="{active: isOn, disabled: isDisabled}"
  *          (click)="toggle(!isOn)">
  *          Click me!
  *      </div>`,
@@ -107,7 +103,7 @@ export let NgClass = class {
             this._differ = null;
         }
     }
-    doCheck() {
+    ngDoCheck() {
         if (isPresent(this._differ)) {
             var changes = this._differ.diff(this._rawClass);
             if (isPresent(changes)) {
@@ -120,7 +116,7 @@ export let NgClass = class {
             }
         }
     }
-    onDestroy() { this._cleanupClasses(this._rawClass); }
+    ngOnDestroy() { this._cleanupClasses(this._rawClass); }
     _cleanupClasses(rawClassVal) {
         this._applyClasses(rawClassVal, true);
         this._applyInitialClasses(false);
@@ -160,12 +156,19 @@ export let NgClass = class {
     _toggleClass(className, enabled) {
         className = className.trim();
         if (className.length > 0) {
-            this._renderer.setElementClass(this._ngEl, className, enabled);
+            if (className.indexOf(' ') > -1) {
+                var classes = className.split(/\s+/g);
+                for (var i = 0, len = classes.length; i < len; i++) {
+                    this._renderer.setElementClass(this._ngEl, classes[i], enabled);
+                }
+            }
+            else {
+                this._renderer.setElementClass(this._ngEl, className, enabled);
+            }
         }
     }
 };
 NgClass = __decorate([
-    Directive({ selector: '[ng-class]', inputs: ['rawClass: ng-class', 'initialClasses: class'] }), 
+    Directive({ selector: '[ngClass]', inputs: ['rawClass: ngClass', 'initialClasses: class'] }), 
     __metadata('design:paramtypes', [IterableDiffers, KeyValueDiffers, ElementRef, Renderer])
 ], NgClass);
-//# sourceMappingURL=ng_class.js.map

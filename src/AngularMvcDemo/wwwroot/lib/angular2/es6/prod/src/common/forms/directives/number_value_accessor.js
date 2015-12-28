@@ -1,21 +1,15 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Directive } from 'angular2/src/core/metadata';
-import { ElementRef } from 'angular2/src/core/linker';
-import { Renderer } from 'angular2/src/core/render';
-import { forwardRef, Provider } from 'angular2/src/core/di';
+import { Directive, ElementRef, Renderer, forwardRef, Provider } from 'angular2/core';
 import { NG_VALUE_ACCESSOR } from './control_value_accessor';
 import { CONST_EXPR, NumberWrapper } from 'angular2/src/facade/lang';
-import { setProperty } from './shared';
 const NUMBER_VALUE_ACCESSOR = CONST_EXPR(new Provider(NG_VALUE_ACCESSOR, { useExisting: forwardRef(() => NumberValueAccessor), multi: true }));
 /**
  * The accessor for writing a number value and listening to changes that is used by the
@@ -23,7 +17,7 @@ const NUMBER_VALUE_ACCESSOR = CONST_EXPR(new Provider(NG_VALUE_ACCESSOR, { useEx
  *
  *  ### Example
  *  ```
- *  <input type="number" [(ng-model)]="age">
+ *  <input type="number" [(ngModel)]="age">
  *  ```
  */
 export let NumberValueAccessor = class {
@@ -33,7 +27,9 @@ export let NumberValueAccessor = class {
         this.onChange = (_) => { };
         this.onTouched = () => { };
     }
-    writeValue(value) { setProperty(this._renderer, this._elementRef, 'value', value); }
+    writeValue(value) {
+        this._renderer.setElementProperty(this._elementRef, 'value', value);
+    }
     registerOnChange(fn) {
         this.onChange = (value) => { fn(NumberWrapper.parseFloat(value)); };
     }
@@ -41,7 +37,7 @@ export let NumberValueAccessor = class {
 };
 NumberValueAccessor = __decorate([
     Directive({
-        selector: 'input[type=number][ng-control],input[type=number][ng-form-control],input[type=number][ng-model]',
+        selector: 'input[type=number][ngControl],input[type=number][ngFormControl],input[type=number][ngModel]',
         host: {
             '(change)': 'onChange($event.target.value)',
             '(input)': 'onChange($event.target.value)',
@@ -51,4 +47,3 @@ NumberValueAccessor = __decorate([
     }), 
     __metadata('design:paramtypes', [Renderer, ElementRef])
 ], NumberValueAccessor);
-//# sourceMappingURL=number_value_accessor.js.map

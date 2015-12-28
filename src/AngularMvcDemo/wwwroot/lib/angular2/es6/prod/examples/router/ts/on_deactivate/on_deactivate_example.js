@@ -1,15 +1,14 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Component, Injectable, NgFor, provide, bootstrap } from 'angular2/angular2';
+import { Component, Injectable, provide } from 'angular2/core';
+import { bootstrap } from 'angular2/bootstrap';
 import { RouteConfig, ROUTER_DIRECTIVES, APP_BASE_HREF } from 'angular2/router';
 let LogService = class {
     constructor() {
@@ -21,12 +20,12 @@ LogService = __decorate([
     Injectable(), 
     __metadata('design:paramtypes', [])
 ], LogService);
-// #docregion onDeactivate
+// #docregion routerOnDeactivate
 let MyCmp = class {
     constructor(logService) {
         this.logService = logService;
     }
-    onDeactivate(next, prev) {
+    routerOnDeactivate(next, prev) {
         this.logService.addLog(`Navigating from "${prev ? prev.urlPath : 'null'}" to "${next.urlPath}"`);
     }
 };
@@ -46,16 +45,16 @@ AppCmp = __decorate([
         template: `
     <h1>My App</h1>
     <nav>
-      <a [router-link]="['/HomeCmp']" id="home-link">Navigate Home</a> |
-      <a [router-link]="['/ParamCmp', {param: 1}]" id="param-link">Navigate with a Param</a>
+      <a [routerLink]="['/HomeCmp']" id="home-link">Navigate Home</a> |
+      <a [routerLink]="['/ParamCmp', {param: 1}]" id="param-link">Navigate with a Param</a>
     </nav>
     <router-outlet></router-outlet>
     <div id="log">
       <h2>Log:</h2>
-      <p *ng-for="#logItem of logService.logs">{{ logItem }}</p>
+      <p *ngFor="#logItem of logService.logs">{{ logItem }}</p>
     </div>
   `,
-        directives: [ROUTER_DIRECTIVES, NgFor]
+        directives: [ROUTER_DIRECTIVES]
     }),
     RouteConfig([
         { path: '/', component: MyCmp, name: 'HomeCmp' },
@@ -69,4 +68,3 @@ export function main() {
         LogService
     ]);
 }
-//# sourceMappingURL=on_deactivate_example.js.map

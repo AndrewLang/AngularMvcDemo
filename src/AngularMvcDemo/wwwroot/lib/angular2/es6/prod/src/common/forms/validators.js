@@ -2,7 +2,7 @@ import { isBlank, isPresent, CONST_EXPR } from 'angular2/src/facade/lang';
 import { PromiseWrapper } from 'angular2/src/facade/promise';
 import { ObservableWrapper } from 'angular2/src/facade/async';
 import { StringMapWrapper } from 'angular2/src/facade/collection';
-import { OpaqueToken } from 'angular2/src/core/di';
+import { OpaqueToken } from 'angular2/core';
 /**
  * Providers for validators to be used for {@link Control}s in a form.
  *
@@ -10,22 +10,25 @@ import { OpaqueToken } from 'angular2/src/core/di';
  *
  * ### Example
  *
- * ```typescript
- * var providers = [
- *   new Provider(NG_VALIDATORS, {useValue: myValidator, multi: true})
- * ];
- * ```
+ * {@example core/forms/ts/ng_validators/ng_validators.ts region='ng_validators'}
  */
 export const NG_VALIDATORS = CONST_EXPR(new OpaqueToken("NgValidators"));
+/**
+ * Providers for asynchronous validators to be used for {@link Control}s
+ * in a form.
+ *
+ * Provide this using `multi: true` to add validators.
+ *
+ * See {@link NG_VALIDATORS} for more details.
+ */
 export const NG_ASYNC_VALIDATORS = CONST_EXPR(new OpaqueToken("NgAsyncValidators"));
 /**
  * Provides a set of validators used by form controls.
  *
  * A validator is a function that processes a {@link Control} or collection of
- * controls and returns a {@link StringMap} of errors. A null map means that
- * validation has passed.
+ * controls and returns a map of errors. A null map means that validation has passed.
  *
- * # Example
+ * ### Example
  *
  * ```typescript
  * var loginControl = new Control("", Validators.required)
@@ -106,4 +109,3 @@ function _mergeErrors(arrayOfErrors) {
     }, {});
     return StringMapWrapper.isEmpty(res) ? null : res;
 }
-//# sourceMappingURL=validators.js.map

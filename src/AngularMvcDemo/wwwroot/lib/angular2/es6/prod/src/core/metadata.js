@@ -34,20 +34,7 @@ import { makeDecorator, makeParamDecorator, makePropDecorator } from './util/dec
  *
  * ### Example
  *
- * ```
- * @Component({
- *   selector: 'greet',
- *   template: 'Hello {{name}}!'
- * })
- * class Greet {
- *   name: string;
- *
- *   constructor() {
- *     this.name = 'World';
- *   }
- * }
- * ```
- *
+ * {@example core/ts/metadata/metadata.ts region='component'}
  */
 export var Component = makeDecorator(ComponentMetadata, (fn) => fn.View = View);
 // TODO(alexeagle): remove the duplication of this doc. It is copied from DirectiveMetadata.
@@ -234,8 +221,8 @@ export var Component = makeDecorator(ComponentMetadata, (fn) => fn.View = View);
  * A directive can also query for other child directives. Since parent directives are instantiated
  * before child directives, a directive can't simply inject the list of child directives. Instead,
  * the directive injects a {@link QueryList}, which updates its contents as children are added,
- * removed, or moved by a directive that uses a {@link ViewContainerRef} such as a `ng-for`, an
- * `ng-if`, or an `ng-switch`.
+ * removed, or moved by a directive that uses a {@link ViewContainerRef} such as a `ngFor`, an
+ * `ngIf`, or an `ngSwitch`.
  *
  * ```
  * @Directive({ selector: '[my-directive]' })
@@ -461,35 +448,22 @@ export var Directive = makeDecorator(DirectiveMetadata);
  * ```
  */
 export var View = makeDecorator(ViewMetadata, (fn) => fn.View = View);
-// TODO(alexeagle): remove the duplication of this doc. It is copied from AttributeMetadata.
 /**
- * Metadata properties available for configuring Views.
+ * Specifies that a constant attribute value should be injected.
  *
- * Each Angular component requires a single `@Component` and at least one `@View` annotation. The
- * `@View` annotation specifies the HTML template to use, and lists the directives that are active
- * within the template.
- *
- * When a component is instantiated, the template is loaded into the component's shadow root, and
- * the expressions and statements in the template are evaluated against the component.
- *
- * For details on the `@Component` annotation, see {@link ComponentMetadata}.
+ * The directive can inject constant string literals of host element attributes.
  *
  * ### Example
  *
- * ```
- * @Component({
- *   selector: 'greet',
- *   template: 'Hello {{name}}!',
- *   directives: [GreetUser, Bold]
- * })
- * class Greet {
- *   name: string;
+ * Suppose we have an `<input>` element and want to know its `type`.
  *
- *   constructor() {
- *     this.name = 'World';
- *   }
- * }
+ * ```html
+ * <input type="text">
  * ```
+ *
+ * A decorator can inject string literal `text` like so:
+ *
+ * {@example core/ts/metadata/metadata.ts region='attributeMetadata'}
  */
 export var Attribute = makeParamDecorator(AttributeMetadata);
 // TODO(alexeagle): remove the duplication of this doc. It is copied from QueryMetadata.
@@ -505,7 +479,7 @@ export var Attribute = makeParamDecorator(AttributeMetadata);
  * ```html
  * <tabs>
  *   <pane title="Overview">...</pane>
- *   <pane *ng-for="#o of objects" [title]="o.title">{{o.text}}</pane>
+ *   <pane *ngFor="#o of objects" [title]="o.title">{{o.text}}</pane>
  * </tabs>
  * ```
  *
@@ -524,7 +498,7 @@ export var Attribute = makeParamDecorator(AttributeMetadata);
  *  selector: 'tabs',
  *  template: `
  *    <ul>
- *      <li *ng-for="#pane of panes">{{pane.title}}</li>
+ *      <li *ngFor="#pane of panes">{{pane.title}}</li>
  *    </ul>
  *    <content></content>
  *  `
@@ -558,8 +532,8 @@ export var Attribute = makeParamDecorator(AttributeMetadata);
  *
  * ```html
  * <seeker>
- *   <div #find-me>...</div>
- *   <div #find-me-too>...</div>
+ *   <div #findMe>...</div>
+ *   <div #findMeToo>...</div>
  * </seeker>
  *
  *  @Component({
@@ -605,7 +579,7 @@ export var Query = makeParamDecorator(QueryMetadata);
 /**
  * Configures a content query.
  *
- * Content queries are set before the `afterContentInit` callback is called.
+ * Content queries are set before the `ngAfterContentInit` callback is called.
  *
  * ### Example
  *
@@ -616,7 +590,7 @@ export var Query = makeParamDecorator(QueryMetadata);
  * class SomeDir {
  *   @ContentChildren(ChildDirective) contentChildren: QueryList<ChildDirective>;
  *
- *   afterContentInit() {
+ *   ngAfterContentInit() {
  *     // contentChildren is set
  *   }
  * }
@@ -627,7 +601,7 @@ export var ContentChildren = makePropDecorator(ContentChildrenMetadata);
 /**
  * Configures a content query.
  *
- * Content queries are set before the `afterContentInit` callback is called.
+ * Content queries are set before the `ngAfterContentInit` callback is called.
  *
  * ### Example
  *
@@ -638,7 +612,7 @@ export var ContentChildren = makePropDecorator(ContentChildrenMetadata);
  * class SomeDir {
  *   @ContentChild(ChildDirective) contentChild;
  *
- *   afterContentInit() {
+ *   ngAfterContentInit() {
  *     // contentChild is set
  *   }
  * }
@@ -649,7 +623,7 @@ export var ContentChild = makePropDecorator(ContentChildMetadata);
 /**
  * Configures a view query.
  *
- * View queries are set before the `afterViewInit` callback is called.
+ * View queries are set before the `ngAfterViewInit` callback is called.
  *
  * ### Example
  *
@@ -662,7 +636,7 @@ export var ContentChild = makePropDecorator(ContentChildMetadata);
  * class SomeDir {
  *   @ViewChildren(ItemDirective) viewChildren: QueryList<ItemDirective>;
  *
- *   afterViewInit() {
+ *   ngAfterViewInit() {
  *     // viewChildren is set
  *   }
  * }
@@ -673,7 +647,7 @@ export var ViewChildren = makePropDecorator(ViewChildrenMetadata);
 /**
  * Configures a view query.
  *
- * View queries are set before the `afterViewInit` callback is called.
+ * View queries are set before the `ngAfterViewInit` callback is called.
  *
  * ### Example
  *
@@ -686,7 +660,7 @@ export var ViewChildren = makePropDecorator(ViewChildrenMetadata);
  * class SomeDir {
  *   @ViewChild(ItemDirective) viewChild:ItemDirective;
  *
- *   afterViewInit() {
+ *   ngAfterViewInit() {
  *     // viewChild is set
  *   }
  * }
@@ -736,14 +710,7 @@ export var ViewQuery = makeParamDecorator(ViewQueryMetadata);
  *
  * ### Example
  *
- * ```
- * @Pipe({
- *   name: 'lowercase'
- * })
- * class Lowercase {
- *   transform(v, args) { return v.toLowerCase(); }
- * }
- * ```
+ * {@example core/ts/metadata/metadata.ts region='pipe'}
  */
 export var Pipe = makeDecorator(PipeMetadata);
 // TODO(alexeagle): remove the duplication of this doc. It is copied from InputMetadata.
@@ -811,8 +778,8 @@ export var Input = makePropDecorator(InputMetadata);
  *   @Output('everyFiveSeconds') five5Secs = new EventEmitter();
  *
  *   constructor() {
- *     setInterval(() => this.everySecond.next("event"), 1000);
- *     setInterval(() => this.five5Secs.next("event"), 5000);
+ *     setInterval(() => this.everySecond.emit("event"), 1000);
+ *     setInterval(() => this.five5Secs.emit("event"), 5000);
  *   }
  * }
  *
@@ -846,10 +813,10 @@ export var Output = makePropDecorator(OutputMetadata);
  * ### Example
  *
  * The following example creates a directive that sets the `valid` and `invalid` classes
- * on the DOM element that has ng-model directive on it.
+ * on the DOM element that has ngModel directive on it.
  *
  * ```typescript
- * @Directive({selector: '[ng-model]'})
+ * @Directive({selector: '[ngModel]'})
  * class NgModelStatus {
  *   constructor(public control:NgModel) {}
  *   @HostBinding('[class.valid]') get valid { return this.control.valid; }
@@ -858,7 +825,7 @@ export var Output = makePropDecorator(OutputMetadata);
  *
  * @Component({
  *   selector: 'app',
- *   template: `<input [(ng-model)]="prop">`,
+ *   template: `<input [(ngModel)]="prop">`,
  *   directives: [FORM_DIRECTIVES, NgModelStatus]
  * })
  * class App {
@@ -905,4 +872,3 @@ export var HostBinding = makePropDecorator(HostBindingMetadata);
  * ```
  */
 export var HostListener = makePropDecorator(HostListenerMetadata);
-//# sourceMappingURL=metadata.js.map

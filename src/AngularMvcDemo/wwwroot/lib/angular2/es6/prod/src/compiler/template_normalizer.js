@@ -1,10 +1,8 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
@@ -22,10 +20,10 @@ import { HtmlTextAst, htmlVisitAll } from './html_ast';
 import { HtmlParser } from './html_parser';
 import { preparseElement, PreparsedElementType } from './template_preparser';
 export let TemplateNormalizer = class {
-    constructor(_xhr, _urlResolver, _domParser) {
+    constructor(_xhr, _urlResolver, _htmlParser) {
         this._xhr = _xhr;
         this._urlResolver = _urlResolver;
-        this._domParser = _domParser;
+        this._htmlParser = _htmlParser;
     }
     normalizeTemplate(directiveType, template) {
         if (isPresent(template.template)) {
@@ -41,9 +39,13 @@ export let TemplateNormalizer = class {
         }
     }
     normalizeLoadedTemplate(directiveType, templateMeta, template, templateAbsUrl) {
-        var domNodes = this._domParser.parse(template, directiveType.name);
+        var rootNodesAndErrors = this._htmlParser.parse(template, directiveType.name);
+        if (rootNodesAndErrors.errors.length > 0) {
+            var errorString = rootNodesAndErrors.errors.join('\n');
+            throw new BaseException(`Template parse errors:\n${errorString}`);
+        }
         var visitor = new TemplatePreparseVisitor();
-        htmlVisitAll(visitor, domNodes);
+        htmlVisitAll(visitor, rootNodesAndErrors.rootNodes);
         var allStyles = templateMeta.styles.concat(visitor.styles);
         var allStyleAbsUrls = visitor.styleUrls.filter(isStyleUrlResolvable)
             .map(url => this._urlResolver.resolve(templateAbsUrl, url))
@@ -113,4 +115,3 @@ class TemplatePreparseVisitor {
     visitAttr(ast, context) { return null; }
     visitText(ast, context) { return null; }
 }
-//# sourceMappingURL=template_normalizer.js.map

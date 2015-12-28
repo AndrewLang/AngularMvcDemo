@@ -1,7 +1,10 @@
-import { global } from 'angular2/src/facade/lang';
+import { global, noop } from 'angular2/src/facade/lang';
 export { PromiseWrapper, Promise } from 'angular2/src/facade/promise';
-import { Subject, Observable as RxObservable } from '@reactivex/rxjs/dist/cjs/Rx';
-export { Subject } from '@reactivex/rxjs/dist/cjs/Rx';
+import { Subject } from 'rxjs/Subject';
+import { PromiseObservable } from 'rxjs/observable/fromPromise';
+import { toPromise } from 'rxjs/operator/toPromise';
+export { Observable } from 'rxjs/Observable';
+export { Subject } from 'rxjs/Subject';
 export class TimerWrapper {
     static setTimeout(fn, millis) {
         return global.setTimeout(fn, millis);
@@ -15,21 +18,27 @@ export class TimerWrapper {
 export class ObservableWrapper {
     // TODO(vsavkin): when we use rxnext, try inferring the generic type from the first arg
     static subscribe(emitter, onNext, onError, onComplete = () => { }) {
+        onError = (typeof onError === "function") && onError || noop;
+        onComplete = (typeof onComplete === "function") && onComplete || noop;
         return emitter.subscribe({ next: onNext, error: onError, complete: onComplete });
     }
-    static isObservable(obs) { return obs instanceof RxObservable; }
+    static isObservable(obs) { return !!obs.subscribe; }
     /**
      * Returns whether `obs` has any subscribers listening to events.
      */
     static hasSubscribers(obs) { return obs.observers.length > 0; }
     static dispose(subscription) { subscription.unsubscribe(); }
+    /**
+     * @deprecated - use callEmit() instead
+     */
     static callNext(emitter, value) { emitter.next(value); }
+    static callEmit(emitter, value) { emitter.emit(value); }
     static callError(emitter, error) { emitter.error(error); }
     static callComplete(emitter) { emitter.complete(); }
     static fromPromise(promise) {
-        return RxObservable.fromPromise(promise);
+        return PromiseObservable.create(promise);
     }
-    static toPromise(obj) { return obj.toPromise(); }
+    static toPromise(obj) { return toPromise.call(obj); }
 }
 /**
  * Use by directives and components to emit custom Events.
@@ -51,15 +60,15 @@ export class ObservableWrapper {
  *  </div>`})
  * export class Zippy {
  *   visible: boolean = true;
- *   @Output() open: EventEmitter = new EventEmitter();
- *   @Output() close: EventEmitter = new EventEmitter();
+ *   @Output() open: EventEmitter<any> = new EventEmitter();
+ *   @Output() close: EventEmitter<any> = new EventEmitter();
  *
  *   toggle() {
  *     this.visible = !this.visible;
  *     if (this.visible) {
- *       this.open.next(null);
+ *       this.open.emit(null);
  *     } else {
- *       this.close.next(null);
+ *       this.close.emit(null);
  *     }
  *   }
  * }
@@ -79,27 +88,39 @@ export class EventEmitter extends Subject {
         super();
         this._isAsync = isAsync;
     }
+    emit(value) { super.next(value); }
+    /**
+     * @deprecated - use .emit(value) instead
+     */
+    next(value) { super.next(value); }
     subscribe(generatorOrNext, error, complete) {
+        let schedulerFn;
+        let errorFn = (err) => null;
+        let completeFn = () => null;
         if (generatorOrNext && typeof generatorOrNext === 'object') {
-            let schedulerFn = this._isAsync ?
-                    (value) => { setTimeout(() => generatorOrNext.next(value)); } :
+            schedulerFn = this._isAsync ? (value) => { setTimeout(() => generatorOrNext.next(value)); } :
                     (value) => { generatorOrNext.next(value); };
-            return super.subscribe(schedulerFn, (err) => generatorOrNext.error ? generatorOrNext.error(err) : null, () => generatorOrNext.complete ? generatorOrNext.complete() : null);
+            if (generatorOrNext.error) {
+                errorFn = this._isAsync ? (err) => { setTimeout(() => generatorOrNext.error(err)); } :
+                        (err) => { generatorOrNext.error(err); };
+            }
+            if (generatorOrNext.complete) {
+                completeFn = this._isAsync ? () => { setTimeout(() => generatorOrNext.complete()); } :
+                        () => { generatorOrNext.complete(); };
+            }
         }
         else {
-            let schedulerFn = this._isAsync ? (value) => { setTimeout(() => generatorOrNext(value)); } :
+            schedulerFn = this._isAsync ? (value) => { setTimeout(() => generatorOrNext(value)); } :
                     (value) => { generatorOrNext(value); };
-            return super.subscribe(schedulerFn, (err) => error ? error(err) : null, () => complete ? complete() : null);
+            if (error) {
+                errorFn =
+                    this._isAsync ? (err) => { setTimeout(() => error(err)); } : (err) => { error(err); };
+            }
+            if (complete) {
+                completeFn =
+                    this._isAsync ? () => { setTimeout(() => complete()); } : () => { complete(); };
+            }
         }
+        return super.subscribe(schedulerFn, errorFn, completeFn);
     }
 }
-// todo(robwormald): ts2dart should handle this properly
-export class Observable extends RxObservable {
-    lift(operator) {
-        const observable = new Observable();
-        observable.source = this;
-        observable.operator = operator;
-        return observable;
-    }
-}
-//# sourceMappingURL=async.js.map

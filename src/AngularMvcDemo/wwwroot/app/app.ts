@@ -2,14 +2,16 @@
 /*
  * Angular 2 decorators and services
  */
-import {bootstrap, FORM_PROVIDERS, ELEMENT_PROBE_PROVIDERS, Directive, Attribute,Component, View, ElementRef} from 'angular2/angular2';
-import {RouteConfig, Router} from 'angular2/router';
-import {ROUTER_PROVIDERS} from 'angular2/router';
+import {bootstrap}    from 'angular2/platform/browser'
+import {FORM_PROVIDERS, ELEMENT_PROBE_PROVIDERS, Directive, Attribute, Component, View, ElementRef, EventEmitter} from 'angular2/core';
+import {NgForm,NgIf}    from 'angular2/common';
+//import {RouteConfig, Router} from 'angular2/router';
+//import {ROUTER_PROVIDERS} from 'angular2/router';
 /*
  * Angular Directives
  */
-import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/angular2';
-import {ROUTER_DIRECTIVES} from 'angular2/router';
+import {CORE_DIRECTIVES, FORM_DIRECTIVES} from 'angular2/core';
+//import {ROUTER_DIRECTIVES} from 'angular2/router';
 
 import {Person} from './models/Person.ts';
 import {FriendService} from './services/FriendService.ts';
@@ -17,16 +19,16 @@ import {FriendService} from './services/FriendService.ts';
 
 
 
-@Directive({
-    // using [ ] means selecting an attribute
-    selector: '[set-font]'
-})
-class SetFont {
-    constructor(element: ElementRef, @Attribute('set-font') color: string) {
-        console.log("ente directive");
-        element.nativeElement.style.color = color;
-    }
-}
+//@Directive({
+//    // using [ ] means selecting an attribute
+//    selector: '[set-font]'
+//})
+//class SetFont {
+//    constructor(element: ElementRef, @Attribute('set-font') color: string) {
+//        console.log("ente directive");
+//        element.nativeElement.style.color = color;
+//    }
+//}
 
 
 
@@ -35,7 +37,7 @@ class SetFont {
 })
 @View({
     templateUrl: "/view/friendeditor/",      // Call ASP MVC to retrieve the partial view
-    directives: [CORE_DIRECTIVES, SetFont]           // Call Core directives and custom directives
+    //directives: [CORE_DIRECTIVES]           // Call Core directives and custom directives
 })
 class AppComponent {
     title: string;
@@ -69,10 +71,12 @@ class AppComponent {
 
 bootstrap(AppComponent, [
     FriendService,
-// These are dependencies of our App
-    FORM_PROVIDERS,
-    ROUTER_PROVIDERS,
-    ELEMENT_PROBE_PROVIDERS
+    
+    // These are dependencies of our App
+
+    //FORM_PROVIDERS,
+    //ROUTER_PROVIDERS,
+    //ELEMENT_PROBE_PROVIDERS
 ]).then(
     success => console.log('App Bootstrapped!'),
     error => console.log(error));

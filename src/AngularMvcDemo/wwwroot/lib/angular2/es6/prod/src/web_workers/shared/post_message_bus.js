@@ -1,16 +1,14 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { BaseException } from 'angular2/src/facade/exceptions';
-import { EventEmitter } from 'angular2/src/facade/async';
+import { EventEmitter, ObservableWrapper } from 'angular2/src/facade/async';
 import { StringMapWrapper } from 'angular2/src/facade/collection';
 import { Injectable } from "angular2/src/core/di";
 /**
@@ -45,7 +43,9 @@ export class PostMessageBusSink {
     }
     attachToZone(zone) {
         this._zone = zone;
-        this._zone.overrideOnEventDone(() => this._handleOnEventDone(), false);
+        this._zone.runOutsideAngular(() => {
+            ObservableWrapper.subscribe(this._zone.onEventDone, (_) => { this._handleOnEventDone(); });
+        });
     }
     initChannel(channel, runInZone = true) {
         if (StringMapWrapper.contains(this._channels, channel)) {
@@ -119,10 +119,10 @@ export class PostMessageBusSource {
         if (StringMapWrapper.contains(this._channels, channel)) {
             var channelInfo = this._channels[channel];
             if (channelInfo.runInZone) {
-                this._zone.run(() => { channelInfo.emitter.next(data.message); });
+                this._zone.run(() => { channelInfo.emitter.emit(data.message); });
             }
             else {
-                channelInfo.emitter.next(data.message);
+                channelInfo.emitter.emit(data.message);
             }
         }
     }
@@ -137,4 +137,3 @@ class _Channel {
         this.runInZone = runInZone;
     }
 }
-//# sourceMappingURL=post_message_bus.js.map

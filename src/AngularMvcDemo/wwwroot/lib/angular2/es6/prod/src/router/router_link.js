@@ -1,19 +1,16 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Directive } from 'angular2/angular2';
+import { Directive } from 'angular2/core';
 import { isString } from 'angular2/src/facade/lang';
 import { Router } from './router';
 import { Location } from './location';
-import { stringifyInstruction } from './instruction';
 /**
  * The RouterLink directive lets you link to specific parts of your app.
  *
@@ -29,7 +26,7 @@ import { stringifyInstruction } from './instruction';
  * When linking to this `User` route, you can write:
  *
  * ```
- * <a [router-link]="['./User']">link to user component</a>
+ * <a [routerLink]="['./User']">link to user component</a>
  * ```
  *
  * RouterLink expects the value to be an array of route names, followed by the params
@@ -52,7 +49,7 @@ export let RouterLink = class {
     set routeParams(changes) {
         this._routeParams = changes;
         this._navigationInstruction = this._router.generate(this._routeParams);
-        var navigationHref = stringifyInstruction(this._navigationInstruction);
+        var navigationHref = this._navigationInstruction.toLinkUrl();
         this.visibleHref = this._location.prepareExternalUrl(navigationHref);
     }
     onClick() {
@@ -66,7 +63,7 @@ export let RouterLink = class {
 };
 RouterLink = __decorate([
     Directive({
-        selector: '[router-link]',
+        selector: '[routerLink]',
         inputs: ['routeParams: routerLink', 'target: target'],
         host: {
             '(click)': 'onClick()',
@@ -76,4 +73,3 @@ RouterLink = __decorate([
     }), 
     __metadata('design:paramtypes', [Router, Location])
 ], RouterLink);
-//# sourceMappingURL=router_link.js.map

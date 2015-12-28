@@ -3,8 +3,10 @@ export { TemplateCompiler } from './template_compiler';
 export { CompileDirectiveMetadata, CompileTypeMetadata, CompileTemplateMetadata } from './directive_metadata';
 export { SourceModule, SourceWithImports } from './source_module';
 export { PLATFORM_DIRECTIVES, PLATFORM_PIPES } from 'angular2/src/core/platform_directives_and_pipes';
-import { assertionsEnabled } from 'angular2/src/facade/lang';
-import { provide } from 'angular2/src/core/di';
+export * from 'angular2/src/compiler/template_ast';
+export { TEMPLATE_TRANSFORMS } from 'angular2/src/compiler/template_parser';
+import { assertionsEnabled, CONST_EXPR } from 'angular2/src/facade/lang';
+import { Provider } from 'angular2/src/core/di';
 import { TemplateParser } from 'angular2/src/compiler/template_parser';
 import { HtmlParser } from 'angular2/src/compiler/html_parser';
 import { TemplateNormalizer } from 'angular2/src/compiler/template_normalizer';
@@ -18,30 +20,31 @@ import { Compiler } from 'angular2/src/core/linker/compiler';
 import { RuntimeCompiler } from 'angular2/src/compiler/runtime_compiler';
 import { ElementSchemaRegistry } from 'angular2/src/compiler/schema/element_schema_registry';
 import { DomElementSchemaRegistry } from 'angular2/src/compiler/schema/dom_element_schema_registry';
-import { UrlResolver } from 'angular2/src/compiler/url_resolver';
-import { AppRootUrl } from 'angular2/src/compiler/app_root_url';
-import { AnchorBasedAppRootUrl } from 'angular2/src/compiler/anchor_based_app_root_url';
+import { UrlResolver, DEFAULT_PACKAGE_URL_PROVIDER } from 'angular2/src/compiler/url_resolver';
 import { Parser, Lexer } from 'angular2/src/core/change_detection/change_detection';
-export function compilerProviders() {
-    return [
-        Lexer,
-        Parser,
-        HtmlParser,
-        TemplateParser,
-        TemplateNormalizer,
-        RuntimeMetadataResolver,
-        StyleCompiler,
-        CommandCompiler,
-        ChangeDetectionCompiler,
-        provide(ChangeDetectorGenConfig, { useValue: new ChangeDetectorGenConfig(assertionsEnabled(), false, true) }),
-        TemplateCompiler,
-        provide(RuntimeCompiler, { useClass: RuntimeCompiler_ }),
-        provide(Compiler, { useExisting: RuntimeCompiler }),
-        DomElementSchemaRegistry,
-        provide(ElementSchemaRegistry, { useExisting: DomElementSchemaRegistry }),
-        AnchorBasedAppRootUrl,
-        provide(AppRootUrl, { useExisting: AnchorBasedAppRootUrl }),
-        UrlResolver
-    ];
+function _createChangeDetectorGenConfig() {
+    return new ChangeDetectorGenConfig(assertionsEnabled(), false, true);
 }
-//# sourceMappingURL=compiler.js.map
+/**
+ * A set of providers that provide `RuntimeCompiler` and its dependencies to use for
+ * template compilation.
+ */
+export const COMPILER_PROVIDERS = CONST_EXPR([
+    Lexer,
+    Parser,
+    HtmlParser,
+    TemplateParser,
+    TemplateNormalizer,
+    RuntimeMetadataResolver,
+    DEFAULT_PACKAGE_URL_PROVIDER,
+    StyleCompiler,
+    CommandCompiler,
+    ChangeDetectionCompiler,
+    new Provider(ChangeDetectorGenConfig, { useFactory: _createChangeDetectorGenConfig, deps: [] }),
+    TemplateCompiler,
+    new Provider(RuntimeCompiler, { useClass: RuntimeCompiler_ }),
+    new Provider(Compiler, { useExisting: RuntimeCompiler }),
+    DomElementSchemaRegistry,
+    new Provider(ElementSchemaRegistry, { useExisting: DomElementSchemaRegistry }),
+    UrlResolver
+]);

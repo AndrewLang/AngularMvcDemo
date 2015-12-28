@@ -15,7 +15,7 @@ import { CORE_DIRECTIVES } from './directives';
  *
  * ```typescript
  * import {NgClass, NgIf, NgFor, NgSwitch, NgSwitchWhen, NgSwitchDefault, NgModel, NgForm} from
- * 'angular2/angular2';
+ * 'angular2/common';
  * import {OtherDirective} from './myDirectives';
  *
  * @Component({
@@ -31,7 +31,7 @@ import { CORE_DIRECTIVES } from './directives';
  * one could import all the common directives at once:
  *
  * ```typescript
- * import {COMMON_DIRECTIVES} from 'angular2/angular2';
+ * import {COMMON_DIRECTIVES} from 'angular2/common';
  * import {OtherDirective} from './myDirectives';
  *
  * @Component({
@@ -45,4 +45,3 @@ import { CORE_DIRECTIVES } from './directives';
  * ```
  */
 export const COMMON_DIRECTIVES = CONST_EXPR([CORE_DIRECTIVES, FORM_DIRECTIVES]);
-//# sourceMappingURL=common_directives.js.map

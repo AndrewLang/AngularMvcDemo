@@ -1,4 +1,4 @@
-import { provide } from 'angular2/angular2';
+import { provide } from 'angular2/core';
 import { NG1_SCOPE } from './constants';
 const INITIAL_VALUE = {
     __UNINITIALIZED__: true
@@ -79,13 +79,13 @@ export class DowngradeNg2ComponentAdapter {
             }
         }
         var prototype = this.info.type.prototype;
-        if (prototype && prototype.onChanges) {
+        if (prototype && prototype.ngOnChanges) {
             // Detect: OnChanges interface
             this.inputChanges = {};
             this.componentScope.$watch(() => this.inputChangeCount, () => {
                 var inputChanges = this.inputChanges;
                 this.inputChanges = {};
-                this.component.onChanges(inputChanges);
+                this.component.ngOnChanges(inputChanges);
             });
         }
         this.componentScope.$watch(() => this.changeDetector && this.changeDetector.detectChanges());
@@ -154,4 +154,3 @@ class Ng1Change {
     }
     isFirstChange() { return this.previousValue === this.currentValue; }
 }
-//# sourceMappingURL=downgrade_ng2_adapter.js.map

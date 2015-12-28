@@ -1,13 +1,16 @@
 import { StringMapWrapper } from 'angular2/src/facade/collection';
 import { global, isFunction, Math } from 'angular2/src/facade/lang';
-import { provide } from 'angular2/src/core/di';
-import { createTestInjector, FunctionWithParamTokens } from './test_injector';
+import { provide } from 'angular2/core';
+import { createTestInjectorWithRuntimeCompiler, FunctionWithParamTokens } from './test_injector';
 import { browserDetection } from './utils';
 export { inject } from './test_injector';
 export { expect } from './matchers';
 export var proxy = (t) => t;
 var _global = (typeof window === 'undefined' ? global : window);
 export var afterEach = _global.afterEach;
+/**
+ * Injectable completer that allows signaling completion of an asynchronous test. Used internally.
+ */
 export class AsyncTestCompleter {
     constructor(_done) {
         this._done = _done;
@@ -81,17 +84,17 @@ export function beforeEach(fn) {
  *
  * Example:
  *
- *   beforeEachBindings(() => [
+ *   beforeEachProviders(() => [
  *     provide(Compiler, {useClass: MockCompiler}),
  *     provide(SomeToken, {useValue: myValue}),
  *   ]);
  */
 export function beforeEachProviders(fn) {
     jsmBeforeEach(() => {
-        var bindings = fn();
-        if (!bindings)
+        var providers = fn();
+        if (!providers)
             return;
-        testProviders = [...testProviders, ...bindings];
+        testProviders = [...testProviders, ...providers];
     });
 }
 /**
@@ -116,7 +119,7 @@ function _it(jsmFn, name, testFn, testTimeOut) {
                         return new AsyncTestCompleter(done);
                     }
                 });
-                var injector = createTestInjector([...testProviders, completerProvider]);
+                var injector = createTestInjectorWithRuntimeCompiler([...testProviders, completerProvider]);
                 runner.run(injector);
                 inIt = true;
                 testFn.execute(injector);
@@ -125,7 +128,7 @@ function _it(jsmFn, name, testFn, testTimeOut) {
         }
         else {
             jsmFn(name, () => {
-                var injector = createTestInjector(testProviders);
+                var injector = createTestInjectorWithRuntimeCompiler(testProviders);
                 runner.run(injector);
                 testFn.execute(injector);
             }, timeOut);
@@ -135,14 +138,14 @@ function _it(jsmFn, name, testFn, testTimeOut) {
         // The test case doesn't use inject(). ie `it('test', (done) => { ... }));`
         if (testFn.length === 0) {
             jsmFn(name, () => {
-                var injector = createTestInjector(testProviders);
+                var injector = createTestInjectorWithRuntimeCompiler(testProviders);
                 runner.run(injector);
                 testFn();
             }, timeOut);
         }
         else {
             jsmFn(name, (done) => {
-                var injector = createTestInjector(testProviders);
+                var injector = createTestInjectorWithRuntimeCompiler(testProviders);
                 runner.run(injector);
                 testFn(done);
             }, timeOut);
@@ -207,4 +210,3 @@ export class SpyObject {
 export function isInInnerZone() {
     return global.zone._innerZone === true;
 }
-//# sourceMappingURL=testing_internal.js.map

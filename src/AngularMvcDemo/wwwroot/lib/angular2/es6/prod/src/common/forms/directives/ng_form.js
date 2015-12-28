@@ -1,10 +1,8 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
@@ -15,8 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { PromiseWrapper, ObservableWrapper, EventEmitter } from 'angular2/src/facade/async';
 import { ListWrapper } from 'angular2/src/facade/collection';
 import { isPresent, CONST_EXPR } from 'angular2/src/facade/lang';
-import { Directive } from 'angular2/src/core/metadata';
-import { forwardRef, Provider, Optional, Inject } from 'angular2/src/core/di';
+import { Directive, forwardRef, Provider, Optional, Inject, Self } from 'angular2/core';
 import { ControlContainer } from './control_container';
 import { ControlGroup, Control } from '../model';
 import { setUpControl, setUpControlGroup, composeValidators, composeAsyncValidators } from './shared';
@@ -26,21 +23,21 @@ const formDirectiveProvider = CONST_EXPR(new Provider(ControlContainer, { useExi
  * If `NgForm` is bound in a component, `<form>` elements in that component will be
  * upgraded to use the Angular form system.
  *
- *##Typical Use
+ * ### Typical Use
  *
  * Include `FORM_DIRECTIVES` in the `directives` section of a {@link View} annotation
  * to use `NgForm` and its associated controls.
  *
- *##Structure
+ * ### Structure
  *
  * An Angular form is a collection of `Control`s in some hierarchy.
  * `Control`s can be at the top level or can be organized in `ControlGroup`s
  * or `ControlArray`s. This hierarchy is reflected in the form's `value`, a
  * JSON object that mirrors the form structure.
  *
- *##Submission
+ * ### Submission
  *
- * The `ng-submit` event signals when the user triggers a form submission.
+ * The `ngSubmit` event signals when the user triggers a form submission.
  *
  * ### Example ([live demo](http://plnkr.co/edit/ltdgYj4P0iY64AR71EpL?p=preview))
  *
@@ -51,16 +48,16 @@ const formDirectiveProvider = CONST_EXPR(new Provider(ControlContainer, { useExi
  *     <div>
  *       <p>Submit the form to see the data object Angular builds</p>
  *       <h2>NgForm demo</h2>
- *       <form #f="form" (ng-submit)="onSubmit(f.value)">
+ *       <form #f="ngForm" (ngSubmit)="onSubmit(f.value)">
  *         <h3>Control group: credentials</h3>
- *         <div ng-control-group="credentials">
- *           <p>Login: <input type="text" ng-control="login"></p>
- *           <p>Password: <input type="password" ng-control="password"></p>
+ *         <div ngControlGroup="credentials">
+ *           <p>Login: <input type="text" ngControl="login"></p>
+ *           <p>Password: <input type="password" ngControl="password"></p>
  *         </div>
  *         <h3>Control group: person</h3>
- *         <div ng-control-group="person">
- *           <p>First name: <input type="text" ng-control="firstName"></p>
- *           <p>Last name: <input type="text" ng-control="lastName"></p>
+ *         <div ngControlGroup="person">
+ *           <p>First name: <input type="text" ngControl="firstName"></p>
+ *           <p>Last name: <input type="text" ngControl="lastName"></p>
  *         </div>
  *         <button type="submit">Submit Form</button>
  *       <p>Form data submitted:</p>
@@ -138,7 +135,7 @@ export let NgForm = class extends ControlContainer {
         });
     }
     onSubmit() {
-        ObservableWrapper.callNext(this.ngSubmit, null);
+        ObservableWrapper.callEmit(this.ngSubmit, null);
         return false;
     }
     /** @internal */
@@ -149,18 +146,19 @@ export let NgForm = class extends ControlContainer {
 };
 NgForm = __decorate([
     Directive({
-        selector: 'form:not([ng-no-form]):not([ng-form-model]),ng-form,[ng-form]',
+        selector: 'form:not([ngNoForm]):not([ngFormModel]),ngForm,[ngForm]',
         bindings: [formDirectiveProvider],
         host: {
             '(submit)': 'onSubmit()',
         },
         outputs: ['ngSubmit'],
-        exportAs: 'form'
+        exportAs: 'ngForm'
     }),
     __param(0, Optional()),
+    __param(0, Self()),
     __param(0, Inject(NG_VALIDATORS)),
     __param(1, Optional()),
+    __param(1, Self()),
     __param(1, Inject(NG_ASYNC_VALIDATORS)), 
     __metadata('design:paramtypes', [Array, Array])
 ], NgForm);
-//# sourceMappingURL=ng_form.js.map

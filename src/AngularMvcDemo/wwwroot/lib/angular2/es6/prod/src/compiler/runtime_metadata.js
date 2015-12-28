@@ -1,10 +1,8 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
@@ -15,7 +13,6 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 import { resolveForwardRef } from 'angular2/src/core/di';
 import { Type, isBlank, isPresent, isArray, stringify } from 'angular2/src/facade/lang';
 import { BaseException } from 'angular2/src/facade/exceptions';
-import { MapWrapper } from 'angular2/src/facade/collection';
 import * as cpl from './directive_metadata';
 import * as md from 'angular2/src/core/metadata/directives';
 import { DirectiveResolver } from 'angular2/src/core/linker/directive_resolver';
@@ -26,6 +23,7 @@ import { reflector } from 'angular2/src/core/reflection/reflection';
 import { Injectable, Inject, Optional } from 'angular2/src/core/di';
 import { PLATFORM_DIRECTIVES } from 'angular2/src/core/platform_directives_and_pipes';
 import { MODULE_SUFFIX } from './util';
+import { getUrlScheme } from 'angular2/src/compiler/url_resolver';
 export let RuntimeMetadataResolver = class {
     constructor(_directiveResolver, _viewResolver, _platformDirectives) {
         this._directiveResolver = _directiveResolver;
@@ -37,11 +35,12 @@ export let RuntimeMetadataResolver = class {
         var meta = this._cache.get(directiveType);
         if (isBlank(meta)) {
             var dirMeta = this._directiveResolver.resolve(directiveType);
-            var moduleUrl = calcModuleUrl(directiveType, dirMeta);
+            var moduleUrl = null;
             var templateMeta = null;
             var changeDetectionStrategy = null;
             if (dirMeta instanceof md.ComponentMetadata) {
                 var cmpMeta = dirMeta;
+                moduleUrl = calcModuleUrl(directiveType, cmpMeta);
                 var viewMeta = this._viewResolver.resolve(directiveType);
                 templateMeta = new cpl.CompileTemplateMetadata({
                     encapsulation: viewMeta.encapsulation,
@@ -77,7 +76,7 @@ export let RuntimeMetadataResolver = class {
                 throw new BaseException(`Unexpected directive value '${stringify(directives[i])}' on the View of component '${stringify(component)}'`);
             }
         }
-        return removeDuplicates(directives).map(type => this.getMetadata(type));
+        return directives.map(type => this.getMetadata(type));
     }
 };
 RuntimeMetadataResolver = __decorate([
@@ -86,11 +85,6 @@ RuntimeMetadataResolver = __decorate([
     __param(2, Inject(PLATFORM_DIRECTIVES)), 
     __metadata('design:paramtypes', [DirectiveResolver, ViewResolver, Array])
 ], RuntimeMetadataResolver);
-function removeDuplicates(items) {
-    let m = new Map();
-    items.forEach(i => m.set(i, null));
-    return MapWrapper.keys(m);
-}
 function flattenDirectives(view, platformDirectives) {
     let directives = [];
     if (isPresent(platformDirectives)) {
@@ -115,12 +109,14 @@ function flattenArray(tree, out) {
 function isValidDirective(value) {
     return isPresent(value) && (value instanceof Type);
 }
-function calcModuleUrl(type, dirMeta) {
-    if (isPresent(dirMeta.moduleId)) {
-        return `package:${dirMeta.moduleId}${MODULE_SUFFIX}`;
+function calcModuleUrl(type, cmpMetadata) {
+    var moduleId = cmpMetadata.moduleId;
+    if (isPresent(moduleId)) {
+        var scheme = getUrlScheme(moduleId);
+        return isPresent(scheme) && scheme.length > 0 ? moduleId :
+            `package:${moduleId}${MODULE_SUFFIX}`;
     }
     else {
         return reflector.importUri(type);
     }
 }
-//# sourceMappingURL=runtime_metadata.js.map

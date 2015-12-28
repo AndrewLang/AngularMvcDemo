@@ -1,10 +1,8 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
@@ -12,14 +10,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { forwardRef, Provider } from 'angular2/src/core/di';
-import { Renderer } from 'angular2/src/core/render';
-import { ElementRef, QueryList } from 'angular2/src/core/linker';
-import { Query, Directive } from 'angular2/src/core/metadata';
+import { Query, Directive, Renderer, forwardRef, Provider, ElementRef, QueryList } from 'angular2/core';
 import { ObservableWrapper } from 'angular2/src/facade/async';
 import { NG_VALUE_ACCESSOR } from './control_value_accessor';
 import { CONST_EXPR } from 'angular2/src/facade/lang';
-import { setProperty } from './shared';
 const SELECT_VALUE_ACCESSOR = CONST_EXPR(new Provider(NG_VALUE_ACCESSOR, { useExisting: forwardRef(() => SelectControlValueAccessor), multi: true }));
 /**
  * Marks `<option>` as dynamic, so Angular can be notified when options change.
@@ -27,8 +21,8 @@ const SELECT_VALUE_ACCESSOR = CONST_EXPR(new Provider(NG_VALUE_ACCESSOR, { useEx
  * ### Example
  *
  * ```
- * <select ng-control="city">
- *   <option *ng-for="#c of cities" [value]="c"></option>
+ * <select ngControl="city">
+ *   <option *ngFor="#c of cities" [value]="c"></option>
  * </select>
  * ```
  */
@@ -51,7 +45,7 @@ export let SelectControlValueAccessor = class {
     }
     writeValue(value) {
         this.value = value;
-        setProperty(this._renderer, this._elementRef, "value", value);
+        this._renderer.setElementProperty(this._elementRef, 'value', value);
     }
     registerOnChange(fn) { this.onChange = fn; }
     registerOnTouched(fn) { this.onTouched = fn; }
@@ -61,7 +55,7 @@ export let SelectControlValueAccessor = class {
 };
 SelectControlValueAccessor = __decorate([
     Directive({
-        selector: 'select[ng-control],select[ng-form-control],select[ng-model]',
+        selector: 'select[ngControl],select[ngFormControl],select[ngModel]',
         host: {
             '(change)': 'onChange($event.target.value)',
             '(input)': 'onChange($event.target.value)',
@@ -72,4 +66,3 @@ SelectControlValueAccessor = __decorate([
     __param(2, Query(NgSelectOption, { descendants: true })), 
     __metadata('design:paramtypes', [Renderer, ElementRef, QueryList])
 ], SelectControlValueAccessor);
-//# sourceMappingURL=select_control_value_accessor.js.map

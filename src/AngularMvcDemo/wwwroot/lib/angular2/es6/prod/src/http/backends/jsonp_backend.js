@@ -1,25 +1,26 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { ConnectionBackend } from '../interfaces';
-import { ReadyStates, RequestMethods, ResponseTypes } from '../enums';
+import { ReadyState, RequestMethod, ResponseType } from '../enums';
 import { Response } from '../static_response';
 import { ResponseOptions } from '../base_response_options';
-import { Injectable } from 'angular2/angular2';
+import { Injectable } from 'angular2/core';
 import { BrowserJsonp } from './browser_jsonp';
 import { makeTypeError } from 'angular2/src/facade/exceptions';
 import { StringWrapper, isPresent } from 'angular2/src/facade/lang';
-import { Observable } from 'angular2/angular2';
+import { Observable } from 'rxjs/Observable';
 const JSONP_ERR_NO_CALLBACK = 'JSONP injected script did not invoke callback.';
 const JSONP_ERR_WRONG_METHOD = 'JSONP requests must use GET request method.';
+/**
+ * Abstract base class for an in-flight JSONP request.
+ */
 export class JSONPConnection {
 }
 export class JSONPConnection_ extends JSONPConnection {
@@ -28,12 +29,12 @@ export class JSONPConnection_ extends JSONPConnection {
         this._dom = _dom;
         this.baseResponseOptions = baseResponseOptions;
         this._finished = false;
-        if (req.method !== RequestMethods.Get) {
+        if (req.method !== RequestMethod.Get) {
             throw makeTypeError(JSONP_ERR_WRONG_METHOD);
         }
         this.request = req;
         this.response = new Observable(responseObserver => {
-            this.readyState = ReadyStates.Loading;
+            this.readyState = ReadyState.Loading;
             let id = this._id = _dom.nextRequestID();
             _dom.exposeConnection(id, this);
             // Workaround Dart
@@ -48,19 +49,19 @@ export class JSONPConnection_ extends JSONPConnection {
             }
             let script = this._script = _dom.build(url);
             let onLoad = event => {
-                if (this.readyState === ReadyStates.Cancelled)
+                if (this.readyState === ReadyState.Cancelled)
                     return;
-                this.readyState = ReadyStates.Done;
+                this.readyState = ReadyState.Done;
                 _dom.cleanup(script);
                 if (!this._finished) {
-                    let responseOptions = new ResponseOptions({ body: JSONP_ERR_NO_CALLBACK, type: ResponseTypes.Error });
+                    let responseOptions = new ResponseOptions({ body: JSONP_ERR_NO_CALLBACK, type: ResponseType.Error, url });
                     if (isPresent(baseResponseOptions)) {
                         responseOptions = baseResponseOptions.merge(responseOptions);
                     }
                     responseObserver.error(new Response(responseOptions));
                     return;
                 }
-                let responseOptions = new ResponseOptions({ body: this._responseData });
+                let responseOptions = new ResponseOptions({ body: this._responseData, url });
                 if (isPresent(this.baseResponseOptions)) {
                     responseOptions = this.baseResponseOptions.merge(responseOptions);
                 }
@@ -68,11 +69,11 @@ export class JSONPConnection_ extends JSONPConnection {
                 responseObserver.complete();
             };
             let onError = error => {
-                if (this.readyState === ReadyStates.Cancelled)
+                if (this.readyState === ReadyState.Cancelled)
                     return;
-                this.readyState = ReadyStates.Done;
+                this.readyState = ReadyState.Done;
                 _dom.cleanup(script);
-                let responseOptions = new ResponseOptions({ body: error.message, type: ResponseTypes.Error });
+                let responseOptions = new ResponseOptions({ body: error.message, type: ResponseType.Error });
                 if (isPresent(baseResponseOptions)) {
                     responseOptions = baseResponseOptions.merge(responseOptions);
                 }
@@ -82,7 +83,7 @@ export class JSONPConnection_ extends JSONPConnection {
             script.addEventListener('error', onError);
             _dom.send(script);
             return () => {
-                this.readyState = ReadyStates.Cancelled;
+                this.readyState = ReadyState.Cancelled;
                 script.removeEventListener('load', onLoad);
                 script.removeEventListener('error', onError);
                 if (isPresent(script)) {
@@ -95,11 +96,14 @@ export class JSONPConnection_ extends JSONPConnection {
         // Don't leak connections
         this._finished = true;
         this._dom.removeConnection(this._id);
-        if (this.readyState === ReadyStates.Cancelled)
+        if (this.readyState === ReadyState.Cancelled)
             return;
         this._responseData = data;
     }
 }
+/**
+ * A {@link ConnectionBackend} that uses the JSONP strategy of making requests.
+ */
 export class JSONPBackend extends ConnectionBackend {
 }
 export let JSONPBackend_ = class extends JSONPBackend {
@@ -116,4 +120,3 @@ JSONPBackend_ = __decorate([
     Injectable(), 
     __metadata('design:paramtypes', [BrowserJsonp, ResponseOptions])
 ], JSONPBackend_);
-//# sourceMappingURL=jsonp_backend.js.map

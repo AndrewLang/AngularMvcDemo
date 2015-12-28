@@ -1,10 +1,8 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
@@ -12,13 +10,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Directive } from 'angular2/src/core/metadata';
-import { Host } from 'angular2/src/core/di';
-import { ViewContainerRef, TemplateRef } from 'angular2/src/core/linker';
+import { Directive, Host, ViewContainerRef, TemplateRef } from 'angular2/core';
 import { isPresent, isBlank, normalizeBlank, CONST_EXPR } from 'angular2/src/facade/lang';
 import { ListWrapper, Map } from 'angular2/src/facade/collection';
 const _WHEN_DEFAULT = CONST_EXPR(new Object());
-export class SwitchView {
+class SwitchView {
     constructor(_viewContainerRef, _templateRef) {
         this._viewContainerRef = _viewContainerRef;
         this._templateRef = _templateRef;
@@ -27,28 +23,59 @@ export class SwitchView {
     destroy() { this._viewContainerRef.clear(); }
 }
 /**
- * The `NgSwitch` directive is used to conditionally swap DOM structure on your template based on a
- * scope expression.
+ * Adds or removes DOM sub-trees when their match expressions match the switch expression.
+ *
  * Elements within `NgSwitch` but without `NgSwitchWhen` or `NgSwitchDefault` directives will be
  * preserved at the location as specified in the template.
  *
- * `NgSwitch` simply chooses nested elements and makes them visible based on which element matches
- * the value obtained from the evaluated expression. In other words, you define a container element
- * (where you place the directive), place an expression on the **`[ng-switch]="..."` attribute**),
- * define any inner elements inside of the directive and place a `[ng-switch-when]` attribute per
- * element.
- * The when attribute is used to inform NgSwitch which element to display when the expression is
- * evaluated. If a matching expression is not found via a when attribute then an element with the
- * default attribute is displayed.
+ * `NgSwitch` simply inserts nested elements based on which match expression matches the value
+ * obtained from the evaluated switch expression. In other words, you define a container element
+ * (where you place the directive with a switch expression on the
+ * **`[ngSwitch]="..."` attribute**), define any inner elements inside of the directive and
+ * place a `[ngSwitchWhen]` attribute per element.
  *
- * ### Example
+ * The `ngSwitchWhen` property is used to inform `NgSwitch` which element to display when the
+ * expression is evaluated. If a matching expression is not found via a `ngSwitchWhen` property
+ * then an element with the `ngSwitchDefault` attribute is displayed.
  *
- * ```
- * <ANY [ng-switch]="expression">
- *   <template [ng-switch-when]="whenExpression1">...</template>
- *   <template [ng-switch-when]="whenExpression1">...</template>
- *   <template ng-switch-default>...</template>
- * </ANY>
+ * ### Example ([live demo](http://plnkr.co/edit/DQMTII95CbuqWrl3lYAs?p=preview))
+ *
+ * ```typescript
+ * @Component({selector: 'app'})
+ * @View({
+ *   template: `
+ *     <p>Value = {{value}}</p>
+ *     <button (click)="inc()">Increment</button>
+ *
+ *     <div [ngSwitch]="value">
+ *       <p *ngSwitchWhen="'init'">increment to start</p>
+ *       <p *ngSwitchWhen="0">0, increment again</p>
+ *       <p *ngSwitchWhen="1">1, increment again</p>
+ *       <p *ngSwitchWhen="2">2, stop incrementing</p>
+ *       <p *ngSwitchDefault>&gt; 2, STOP!</p>
+ *     </div>
+ *
+ *     <!-- alternate syntax -->
+ *
+ *     <p [ngSwitch]="value">
+ *       <template ngSwitchWhen="init">increment to start</template>
+ *       <template [ngSwitchWhen]="0">0, increment again</template>
+ *       <template [ngSwitchWhen]="1">1, increment again</template>
+ *       <template [ngSwitchWhen]="2">2, stop incrementing</template>
+ *       <template ngSwitchDefault>&gt; 2, STOP!</template>
+ *     </p>
+ *   `,
+ *   directives: [NgSwitch, NgSwitchWhen, NgSwitchDefault]
+ * })
+ * export class App {
+ *   value = 'init';
+ *
+ *   inc() {
+ *     this.value = this.value === 'init' ? 0 : this.value + 1;
+ *   }
+ * }
+ *
+ * bootstrap(App).catch(err => console.error(err));
  * ```
  */
 export let NgSwitch = class {
@@ -134,30 +161,23 @@ export let NgSwitch = class {
     }
 };
 NgSwitch = __decorate([
-    Directive({ selector: '[ng-switch]', inputs: ['ngSwitch'] }), 
+    Directive({ selector: '[ngSwitch]', inputs: ['ngSwitch'] }), 
     __metadata('design:paramtypes', [])
 ], NgSwitch);
 /**
- * Defines a case statement as an expression.
+ * Insert the sub-tree when the `ngSwitchWhen` expression evaluates to the same value as the
+ * enclosing switch expression.
  *
- * If multiple `NgSwitchWhen` match the `NgSwitch` value, all of them are displayed.
+ * If multiple match expression match the switch expression value, all of them are displayed.
  *
- * Example:
- *
- * ```
- * // match against a context variable
- * <template [ng-switch-when]="contextVariable">...</template>
- *
- * // match against a constant string
- * <template ng-switch-when="stringValue">...</template>
- * ```
+ * See {@link NgSwitch} for more details and example.
  */
 export let NgSwitchWhen = class {
-    constructor(viewContainer, templateRef, _switch) {
-        this._switch = _switch;
+    constructor(viewContainer, templateRef, ngSwitch) {
         // `_WHEN_DEFAULT` is used as a marker for a not yet initialized value
         /** @internal */
         this._value = _WHEN_DEFAULT;
+        this._switch = ngSwitch;
         this._view = new SwitchView(viewContainer, templateRef);
     }
     set ngSwitchWhen(value) {
@@ -166,20 +186,15 @@ export let NgSwitchWhen = class {
     }
 };
 NgSwitchWhen = __decorate([
-    Directive({ selector: '[ng-switch-when]', inputs: ['ngSwitchWhen'] }),
+    Directive({ selector: '[ngSwitchWhen]', inputs: ['ngSwitchWhen'] }),
     __param(2, Host()), 
     __metadata('design:paramtypes', [ViewContainerRef, TemplateRef, NgSwitch])
 ], NgSwitchWhen);
 /**
- * Defines a default case statement.
+ * Default case statements are displayed when no match expression matches the switch expression
+ * value.
  *
- * Default case statements are displayed when no `NgSwitchWhen` match the `ng-switch` value.
- *
- * Example:
- *
- * ```
- * <template ng-switch-default>...</template>
- * ```
+ * See {@link NgSwitch} for more details and example.
  */
 export let NgSwitchDefault = class {
     constructor(viewContainer, templateRef, sswitch) {
@@ -187,8 +202,7 @@ export let NgSwitchDefault = class {
     }
 };
 NgSwitchDefault = __decorate([
-    Directive({ selector: '[ng-switch-default]' }),
+    Directive({ selector: '[ngSwitchDefault]' }),
     __param(2, Host()), 
     __metadata('design:paramtypes', [ViewContainerRef, TemplateRef, NgSwitch])
 ], NgSwitchDefault);
-//# sourceMappingURL=ng_switch.js.map

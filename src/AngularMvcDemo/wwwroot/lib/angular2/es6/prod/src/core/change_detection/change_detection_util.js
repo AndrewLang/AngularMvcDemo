@@ -41,11 +41,17 @@ var _wrappedValues = [
     new WrappedValue(null)
 ];
 var _wrappedIndex = 0;
+/**
+ * Represents a basic change from a previous to a new value.
+ */
 export class SimpleChange {
     constructor(previousValue, currentValue) {
         this.previousValue = previousValue;
         this.currentValue = currentValue;
     }
+    /**
+     * Check whether the new value is the first value assigned.
+     */
     isFirstChange() { return this.previousValue === ChangeDetectionUtil.uninitialized; }
 }
 var _simpleChangesIndex = 0;
@@ -167,7 +173,7 @@ export class ChangeDetectionUtil {
     }
     static callPipeOnDestroy(selectedPipe) {
         if (implementsOnDestroy(selectedPipe.pipe)) {
-            selectedPipe.pipe.onDestroy();
+            selectedPipe.pipe.ngOnDestroy();
         }
     }
     static bindingTarget(mode, elementIndex, name, unit, debug) {
@@ -179,4 +185,3 @@ export class ChangeDetectionUtil {
     static looseNotIdentical(a, b) { return !looseIdentical(a, b); }
 }
 ChangeDetectionUtil.uninitialized = CONST_EXPR(new Object());
-//# sourceMappingURL=change_detection_util.js.map

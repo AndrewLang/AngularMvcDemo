@@ -1,19 +1,15 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { isBlank, isPresent, isPromise } from 'angular2/src/facade/lang';
 import { ObservableWrapper } from 'angular2/src/facade/async';
-import { Pipe } from 'angular2/src/core/metadata';
-import { Injectable } from 'angular2/src/core/di';
-import { ChangeDetectorRef, WrappedValue } from 'angular2/src/core/change_detection';
+import { Pipe, Injectable, ChangeDetectorRef, WrappedValue } from 'angular2/core';
 import { InvalidPipeArgumentException } from './invalid_pipe_argument_exception';
 class ObservableStrategy {
     createSubscription(async, updateLatestValue) {
@@ -37,21 +33,16 @@ var _observableStrategy = new ObservableStrategy();
  * When a new value is emitted, the `async` pipe marks the component to be checked for changes.
  *
  * ### Example
- * The example below binds the `time` Observable to the view. Every 500ms, the `time` Observable
- * updates the view with the current time.
  *
- * ```
- * import {Observable} from 'angular2/core';
- * @Component({
- *   selector: "task-cmp",
- *   template: "Time: {{ time | async }}"
- * })
- * class Task {
- *   time = new Observable<number>(observer => {
- *     setInterval(_ =>
- *       observer.next(new Date().getTime()), 500);
- *   });
- * }
+ * This example binds a `Promise` to the view. Clicking the `Resolve` button resolves the
+ * promise.
+ *
+ * {@example core/pipes/ts/async_pipe/async_pipe_example.ts region='AsyncPipe'}
+ *
+ * It's also possible to use `async` with Observables. The example below binds the `time` Observable
+ * to the view. Every 500ms, the `time` Observable updates the view with the current time.
+ *
+ * ```typescript
  * ```
  */
 export let AsyncPipe = class {
@@ -67,7 +58,7 @@ export let AsyncPipe = class {
         this._strategy = null;
         this._ref = _ref;
     }
-    onDestroy() {
+    ngOnDestroy() {
         if (isPresent(this._subscription)) {
             this._dispose();
         }
@@ -77,7 +68,7 @@ export let AsyncPipe = class {
             if (isPresent(obj)) {
                 this._subscribe(obj);
             }
-            return null;
+            return this._latestValue;
         }
         if (obj !== this._obj) {
             this._dispose();
@@ -131,4 +122,3 @@ AsyncPipe = __decorate([
     Injectable(), 
     __metadata('design:paramtypes', [ChangeDetectorRef])
 ], AsyncPipe);
-//# sourceMappingURL=async_pipe.js.map

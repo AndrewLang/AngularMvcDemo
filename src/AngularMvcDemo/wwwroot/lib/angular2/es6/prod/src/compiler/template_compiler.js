@@ -1,10 +1,8 @@
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") return Reflect.decorate(decorators, target, key, desc);
-    switch (arguments.length) {
-        case 2: return decorators.reduceRight(function(o, d) { return (d && d(o)) || o; }, target);
-        case 3: return decorators.reduceRight(function(o, d) { return (d && d(target, key)), void 0; }, void 0);
-        case 4: return decorators.reduceRight(function(o, d) { return (d && d(target, key, o)) || o; }, desc);
-    }
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
@@ -25,6 +23,11 @@ import { TemplateNormalizer } from './template_normalizer';
 import { RuntimeMetadataResolver } from './runtime_metadata';
 import { TEMPLATE_COMMANDS_MODULE_REF } from './command_compiler';
 import { codeGenExportVariable, codeGenValueFn, MODULE_SUFFIX } from './util';
+/**
+ * An internal module of the Angular compiler that begins with component types,
+ * extracts templates, and eventually produces a compiled version of the component
+ * ready for linking into an application.
+ */
 export let TemplateCompiler = class {
     constructor(_runtimeMetadataResolver, _templateNormalizer, _templateParser, _styleCompiler, _commandCompiler, _cdCompiler) {
         this._runtimeMetadataResolver = _runtimeMetadataResolver;
@@ -80,6 +83,7 @@ export let TemplateCompiler = class {
         this._compiledTemplateDone.clear();
     }
     _compileComponentRuntime(cacheKey, compMeta, viewDirectives, compilingComponentCacheKeys) {
+        let uniqViewDirectives = removeDuplicates(viewDirectives);
         var compiledTemplate = this._compiledTemplateCache.get(cacheKey);
         var done = this._compiledTemplateDone.get(cacheKey);
         if (isBlank(compiledTemplate)) {
@@ -91,7 +95,7 @@ export let TemplateCompiler = class {
             this._compiledTemplateCache.set(cacheKey, compiledTemplate);
             compilingComponentCacheKeys.add(cacheKey);
             done = PromiseWrapper
-                .all([this._styleCompiler.compileComponentRuntime(compMeta.template)].concat(viewDirectives.map(dirMeta => this.normalizeDirectiveMetadata(dirMeta))))
+                .all([this._styleCompiler.compileComponentRuntime(compMeta.template)].concat(uniqViewDirectives.map(dirMeta => this.normalizeDirectiveMetadata(dirMeta))))
                 .then((stylesAndNormalizedViewDirMetas) => {
                 var childPromises = [];
                 var normalizedViewDirMetas = stylesAndNormalizedViewDirMetas.slice(1);
@@ -172,8 +176,9 @@ export let TemplateCompiler = class {
         return this._styleCompiler.compileStylesheetCodeGen(stylesheetUrl, cssText);
     }
     _processTemplateCodeGen(compMeta, directives, targetDeclarations, targetTemplateArguments) {
+        let uniqueDirectives = removeDuplicates(directives);
         var styleExpr = this._styleCompiler.compileComponentCodeGen(compMeta.template);
-        var parsedTemplate = this._templateParser.parse(compMeta.template.template, directives, compMeta.type.name);
+        var parsedTemplate = this._templateParser.parse(compMeta.template.template, uniqueDirectives, compMeta.type.name);
         var changeDetectorsExprs = this._cdCompiler.compileComponentCodeGen(compMeta.type, compMeta.changeDetection, parsedTemplate);
         var commandsExpr = this._commandCompiler.compileComponentCodeGen(compMeta, parsedTemplate, changeDetectorsExprs.expressions, codeGenComponentTemplateFactory);
         addAll(styleExpr.declarations, targetDeclarations);
@@ -215,4 +220,15 @@ function addAll(source, target) {
 function codeGenComponentTemplateFactory(nestedCompType) {
     return `${moduleRef(templateModuleUrl(nestedCompType.type.moduleUrl))}${templateGetterName(nestedCompType.type)}`;
 }
-//# sourceMappingURL=template_compiler.js.map
+function removeDuplicates(items) {
+    let res = [];
+    items.forEach(item => {
+        let hasMatch = res.filter(r => r.type.name == item.type.name && r.type.moduleUrl == item.type.moduleUrl &&
+            r.type.runtime == item.type.runtime)
+            .length > 0;
+        if (!hasMatch) {
+            res.push(item);
+        }
+    });
+    return res;
+}

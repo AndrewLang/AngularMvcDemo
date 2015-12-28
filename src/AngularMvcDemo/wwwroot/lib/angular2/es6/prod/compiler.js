@@ -5,4 +5,4 @@
  */
 export * from './src/compiler/url_resolver';
 export * from './src/compiler/xhr';
-//# sourceMappingURL=compiler.js.map
+export * from './src/compiler/compiler';
