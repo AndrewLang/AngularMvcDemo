@@ -1,10 +1,9 @@
-var Models;
-(function (Models) {
+define(["require", "exports"], function (require, exports) {
     var Person = (function () {
         function Person(name) {
             this.Name = name;
         }
         return Person;
     })();
-    Models.Person = Person;
-})(Models || (Models = {}));
+    exports.Person = Person;
+});
